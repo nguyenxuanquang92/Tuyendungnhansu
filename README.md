@@ -43,6 +43,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\Test-App.ps1
 
 Dữ liệu chạy nằm ở `app/data/db.json`, được tạo lại từ dữ liệu mẫu nếu xoá tệp này.
 
+## Công cụ sinh tài liệu
+
+| Lệnh | Việc |
+|---|---|
+| `tools\Build-AsIs.ps1` | Sinh `bpmn/as-is/as-is.bpmn` từ mô hình khai báo |
+| `tools\BpmnToPng.ps1 -In ... -Out ...` | Kết xuất BPMN có DI ra PNG |
+| `tools\HtmlToDocx.ps1 -In ... -Out ...` | Chuyển tài liệu HTML sang DOCX (không cần Word) |
+| `tools\Test-App.ps1` | Kiểm thử tự động ứng dụng web |
+
+`HtmlToDocx.ps1` đóng gói OOXML trực tiếp nên không phụ thuộc Microsoft Word; bản `.docx` sinh ra mở được bằng Word, LibreOffice và Google Docs.
+
 ## Tài liệu
 
 - Kế hoạch và bảng truy vết yêu cầu: [`docs/00_KE_HOACH_PHIEN.md`](docs/00_KE_HOACH_PHIEN.md)
