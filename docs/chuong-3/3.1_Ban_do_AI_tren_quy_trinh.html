@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Phan ra tu dong hoa quy trinh TO-BE tuyen dung nhan su</title>
+<style>
+body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.35; color: #111; }
+h1 { font-size: 17pt; text-align: center; margin: 0 0 4pt 0; text-transform: uppercase; }
+.sub { text-align: center; font-size: 11pt; font-style: italic; color: #444; margin: 0 0 18pt 0; }
+h2 { font-size: 13.5pt; margin: 20pt 0 6pt 0; border-bottom: 1.5pt solid #1f3864; padding-bottom: 3pt; color: #1f3864; }
+h3 { font-size: 12pt; margin: 14pt 0 4pt 0; color: #1f3864; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 20pt; }
+li { margin-bottom: 3pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt 0; font-size: 8.5pt; }
+th { background: #1f3864; color: #fff; border: 0.5pt solid #7f7f7f; padding: 4pt 3pt; text-align: center; font-weight: bold; }
+td { border: 0.5pt solid #7f7f7f; padding: 3pt; vertical-align: top; }
+tr.alt td { background: #f2f5fa; }
+.c { text-align: center; }
+.g1 { background: #e8e8e8; font-weight: bold; }   /* thu cong */
+.g2 { background: #dbe8f5; font-weight: bold; }   /* lua chon */
+.g3 { background: #e2efd9; font-weight: bold; }   /* AI ho tro */
+.g4 { background: #fce4d6; font-weight: bold; }   /* agent */
+.risk-c { color: #b00000; font-weight: bold; }
+.risk-m { color: #b36b00; font-weight: bold; }
+.risk-l { color: #1f7a1f; font-weight: bold; }
+.note { background: #f7f7f7; border-left: 3pt solid #1f3864; padding: 6pt 8pt; margin: 8pt 0; font-size: 10.5pt; }
+.kq { font-weight: bold; }
+.small { font-size: 9pt; color: #555; }
+.bar { font-family: Consolas, monospace; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<h1>Phân rã hoạt động quy trình TO-BE tuyển dụng nhân sự<br>theo mức độ tự động hóa</h1>
+<p class="sub">Nhóm 8 &middot; MIS3047 &middot; Tài liệu phân tích kèm mô hình BPMN TO-BE “Tuyển dụng nhân sự”</p>
+
+<h2>1. Mục đích và cách tiếp cận</h2>
+<p>Tài liệu này phân rã 9 bước của quy trình TO-BE (Lập yêu cầu &rarr; Soạn JD &rarr; Đăng tin &rarr; Tiếp nhận &amp; sàng lọc CV &rarr; Lập lịch phỏng vấn &rarr; Đánh giá &rarr; Phê duyệt &rarr; Lập quyết định &rarr; Tiếp nhận) thành <b>51 hoạt động chi tiết</b>, sau đó xếp mỗi hoạt động vào một trong bốn nhóm: <b>Giữ thủ công</b>, <b>Tự động theo luật</b>, <b>Tự động có AI hỗ trợ</b>, <b>Giao cho AI Agent</b>.</p>
+
+<p>Nguyên tắc xuyên suốt: <b>mức độ tự động hóa phải tương xứng với khả năng kiểm chứng của kết quả đầu ra, không tương xứng với mức độ “hiện đại” của công nghệ</b>. Một hoạt động chỉ được giao cho máy khi thoả đồng thời hai điều kiện: (i) kết quả đúng/sai có thể kiểm tra được bằng dữ liệu, và (ii) nếu sai thì còn kịp phát hiện và khôi phục. Hoạt động nào vi phạm một trong hai điều kiện thì dừng ở mức “AI hỗ trợ” hoặc “thủ công”.</p>
+
+<h2>2. Khung phân loại</h2>
+
+<h3>2.1. Định nghĩa bốn nhóm</h3>
+<table>
+<tr>
+  <th style="width:14%">Nhóm</th>
+  <th style="width:29%">Định nghĩa</th>
+  <th style="width:29%">Điều kiện áp dụng</th>
+  <th style="width:28%">Dấu hiệu nhận biết</th>
+</tr>
+<tr>
+  <td class="g1">Giữ thủ công</td>
+  <td>Con người thực hiện toàn bộ, hệ thống chỉ ghi nhận và lưu vết.</td>
+  <td>Quyết định gắn với <b>thẩm quyền và trách nhiệm giải trình cá nhân</b>; đầu vào mang tính ẩn (thương lượng, đánh giá văn hóa, quan hệ); sai thì <b>không thể đảo ngược</b>.</td>
+  <td>Có chữ ký, có phán đoán nghề nghiệp, có thể bị khiếu nại, kiện.</td>
+</tr>
+<tr>
+  <td class="g2">Tự động theo luật</td>
+  <td>Máy thực hiện bằng quy tắc xác định (if/then, công thức, mẫu, lịch, tích hợp API). Cùng đầu vào luôn cho cùng đầu ra.</td>
+  <td>Tri thức <b>diễn đạt được thành quy tắc</b>; kết quả <b>kiểm chứng được bằng máy</b>; sai thì phát hiện ngay hoặc sửa được.</td>
+  <td>Kiểm tra trường bắt buộc, tính điểm theo thang, sinh văn bản từ mẫu, gửi thông báo, đồng bộ lịch, cấp tài khoản.</td>
+</tr>
+<tr>
+  <td class="g3">Tự động có AI hỗ trợ</td>
+  <td>AI tạo <b>bản nháp hoặc tín hiệu</b> (gợi ý, xếp hạng, cảnh báo); con người <b>xem, sửa và chịu trách nhiệm</b> trước khi kết quả được dùng.</td>
+  <td>Đầu vào <b>phi cấu trúc</b> (CV, ghi chú phỏng vấn, JD); cần phán đoán ngữ nghĩa; <b>sai vẫn chấp nhận được nếu có người rà soát</b>.</td>
+  <td>Có màn hình “chấp nhận / sửa”, có độ tin cậy, có trích dẫn nguồn.</td>
+</tr>
+<tr>
+  <td class="g4">Giao cho AI Agent</td>
+  <td>Agent tự lập kế hoạch và <b>tự thực thi nhiều bước có tác động ra bên ngoài</b> (gửi mail, đặt lịch, gắn nhãn, gọi công cụ), tự kiểm tra kết quả và tự leo thang khi không chắc.</td>
+  <td>Công việc <b>lặp, nhiều bước, dùng công cụ</b>; <b>tiêu chí thành công kiểm chứng được bằng máy</b>; phạm vi ảnh hưởng hẹp và <b>đảo ngược được</b>; không tạo cam kết pháp lý/tài chính mới.</td>
+  <td>Hội thoại nhiều lượt, thao tác trên nhiều hệ thống, tự xử lý ngoại lệ, có giới hạn quyền và ngân sách bước.</td>
+</tr>
+</table>
+
+<h3>2.2. Năm câu hỏi quyết định (áp dụng cho từng hoạt động)</h3>
+<ol>
+  <li><b>Đầu vào có cấu trúc không?</b> Nếu có &rarr; nghiêng về nhóm 2. Nếu là văn bản tự do &rarr; nhóm 3 hoặc 4.</li>
+  <li><b>Tri thức có diễn đạt được thành quy tắc không?</b> Nếu có và quy tắc ổn định &rarr; nhóm 2. Nếu cần suy luận ngữ nghĩa &rarr; nhóm 3/4.</li>
+  <li><b>Nếu sai thì hậu quả là gì?</b> Mất tiền, mất quyền lợi ứng viên, sai luật &rarr; không được vượt nhóm 3. Chỉ phiền toái &rarr; có thể nhóm 4.</li>
+  <li><b>Ai phải chịu trách nhiệm trước pháp lý và tổ chức?</b> Nếu trách nhiệm không thể chuyển cho máy &rarr; nhóm 1 (dù máy có thể làm phần lớn công việc chuẩn bị).</li>
+  <li><b>Có thể đảo ngược không?</b> Đã gửi thư từ chối, đã ký quyết định, đã công bố lương &rarr; không đảo ngược &rarr; bắt buộc có cổng kiểm soát của người.</li>
+</ol>
+
+<h3>2.3. Thang đo rủi ro khi hệ thống xử lý sai</h3>
+<table>
+<tr><th style="width:12%">Mức</th><th style="width:44%">Tiêu chí</th><th style="width:44%">Hệ quả điển hình</th></tr>
+<tr><td class="c risk-c">Cao</td><td>Không thể đảo ngược; ảnh hưởng quyền lợi hợp pháp của ứng viên; tạo cam kết tài chính/pháp lý; sai âm thầm và khó phát hiện.</td><td>Kiện cáo về phân biệt đối xử; cam kết lương ngoài thẩm quyền; mất ứng viên giỏi mà không ai biết; xử lý dữ liệu cá nhân trái Nghị định 13/2023/NĐ-CP.</td></tr>
+<tr><td class="c risk-m">Trung bình</td><td>Khắc phục được trong vài ngày; ảnh hưởng cục bộ một nhóm ứng viên hoặc một vị trí; có người phát hiện ở bước sau.</td><td>Chậm tiến độ tuyển; shortlist lệch; lịch phỏng vấn trùng; ứng viên phải làm lại.</td></tr>
+<tr><td class="c risk-l">Thấp</td><td>Phát hiện ngay khi thực hiện; sửa trong cùng ngày; không ảnh hưởng quyền lợi hay chi phí đáng kể.</td><td>Nhập lại phiếu; gửi lại thông báo; sai định dạng hiển thị.</td></tr>
+</table>
+
+<h2>3. Bảng tổng hợp phân rã theo 9 bước</h2>
+<table>
+<tr>
+  <th style="width:4%">#</th>
+  <th style="width:19%">Bước</th>
+  <th style="width:6%">Số HĐ</th>
+  <th style="width:8%">Thủ công</th>
+  <th style="width:8%">Theo luật</th>
+  <th style="width:8%">AI hỗ trợ</th>
+  <th style="width:7%">AI Agent</th>
+  <th style="width:40%">Điểm kiểm soát con người / rủi ro cao nhất</th>
+</tr>
+<tr><td class="c">1</td><td>Lập yêu cầu tuyển dụng</td><td class="c">6</td><td class="c">2</td><td class="c">2</td><td class="c">2</td><td class="c">0</td><td>Phê duyệt YC vượt ngưỡng ngân sách/headcount — <span class="risk-c">Cao</span></td></tr>
+<tr class="alt"><td class="c">2</td><td>Soạn JD</td><td class="c">6</td><td class="c">2</td><td class="c">2</td><td class="c">2</td><td class="c">0</td><td>Phê duyệt JD công bố ra thị trường — <span class="risk-c">Cao</span></td></tr>
+<tr><td class="c">3</td><td>Đăng tin</td><td class="c">5</td><td class="c">0</td><td class="c">3</td><td class="c">2</td><td class="c">0</td><td>Nội dung đăng lệch so với JD đã duyệt — <span class="risk-m">TB</span></td></tr>
+<tr class="alt"><td class="c">4</td><td>Tiếp nhận &amp; sàng lọc CV</td><td class="c">8</td><td class="c">1</td><td class="c">3</td><td class="c">2</td><td class="c">2</td><td>Chấm điểm thiên lệch, loại oan ứng viên — <span class="risk-c">Cao</span></td></tr>
+<tr><td class="c">5</td><td>Lập lịch phỏng vấn</td><td class="c">5</td><td class="c">0</td><td class="c">2</td><td class="c">1</td><td class="c">2</td><td>Chốt sai múi giờ/người phỏng vấn — <span class="risk-m">TB</span></td></tr>
+<tr class="alt"><td class="c">6</td><td>Đánh giá kết quả phỏng vấn</td><td class="c">5</td><td class="c">1</td><td class="c">1</td><td class="c">3</td><td class="c">0</td><td>Quyết định đạt/không đạt — <span class="risk-c">Cao</span></td></tr>
+<tr><td class="c">7</td><td>Phê duyệt nhân sự</td><td class="c">4</td><td class="c">1</td><td class="c">3</td><td class="c">0</td><td class="c">0</td><td>Phê duyệt sai thẩm quyền — <span class="risk-c">Cao</span></td></tr>
+<tr class="alt"><td class="c">8</td><td>Lập quyết định tuyển dụng</td><td class="c">5</td><td class="c">0</td><td class="c">4</td><td class="c">1</td><td class="c">0</td><td>Quyết định sai lương/chức danh — <span class="risk-c">Cao</span></td></tr>
+<tr><td class="c">9</td><td>Tiếp nhận nhân sự</td><td class="c">7</td><td class="c">1</td><td class="c">2</td><td class="c">2</td><td class="c">2</td><td>Thu thập &amp; xử lý dữ liệu cá nhân nhạy cảm — <span class="risk-c">Cao</span></td></tr>
+<tr style="background:#e6e6e6; font-weight:bold;">
+  <td class="c" colspan="2">Tổng cộng</td><td class="c">51</td><td class="c">8</td><td class="c">22</td><td class="c">15</td><td class="c">6</td><td>16% thủ công · 43% theo luật · 29% AI hỗ trợ · 12% AI Agent</td>
+</tr>
+</table>
+
+<div class="note">
+<b>Đọc bảng này thế nào.</b> Tỷ lệ 43% “tự động theo luật” cho thấy phần lớn giá trị nằm ở việc <b>tin học hoá quy tắc</b>, không phải ở AI. AI chỉ tham gia 41% hoạt động (29% hỗ trợ + 12% agent) và <b>hầu như không bao giờ nằm ở điểm ra quyết định</b>. Đó là đặc trưng của một quy trình tuyển dụng: khối lượng công việc có thể tự động hóa rất cao, nhưng <b>quyền quyết định thì không</b>.
+</div>
+
+<h2>4. Phân rã chi tiết theo từng bước</h2>
+
+<!-- ============ BUOC 1 ============ -->
+<h3>4.1. Bước 1 — Lập yêu cầu tuyển dụng (6 hoạt động)</h3>
+<p>Đây là bước “đầu vào của đầu vào”: chất lượng phiếu YC quyết định toàn bộ chuỗi phía sau. Trong AS-IS, phiếu được lập thủ công và được kiểm tra bằng mắt ở cổng “Yêu cầu có đầy đủ không?”. Ở TO-BE, phần <b>hình thức</b> chuyển cho máy, phần <b>nội dung và thẩm quyền</b> vẫn của con người.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">1.1</td><td>Khởi tạo phiếu YC, tự động điền cơ cấu tổ chức, mã vị trí, người quản lý trực tiếp</td><td class="c g2">Theo luật</td><td>Dữ liệu đã có trong HRM dạng có cấu trúc; ánh xạ 1–1, không cần suy luận. Tự điền loại bỏ lỗi chính tả tên phòng ban và lỗi chọn sai mã vị trí — nguyên nhân phổ biến khiến YC bị trả lại.</td><td class="risk-l">Thấp — điền sai mã vị trí, phát hiện ngay khi đối chiếu danh mục; sửa trong 1 phút.</td></tr>
+<tr class="alt"><td class="c">1.2</td><td>Kiểm tra tính đầy đủ và hợp lệ của các trường bắt buộc (vị trí, số lượng, lý do, yêu cầu, ngân sách)</td><td class="c g2">Theo luật</td><td>Đây chính là cổng “Yêu cầu có đầy đủ không?” trong mô hình — một biểu thức boolean thuần tuý. Máy kiểm tra nhanh hơn, nhất quán hơn và không bỏ sót trường.</td><td class="risk-l">Thấp — có thể chặn nhầm một YC hợp lệ (false positive), người dùng bổ sung rồi gửi lại.</td></tr>
+<tr><td class="c">1.3</td><td>Đánh giá chất lượng nội dung: lý do tuyển có thực sự thuyết phục, yêu cầu có tương xứng với cấp bậc và ngân sách</td><td class="c g3">AI hỗ trợ</td><td>“Đầy đủ” về hình thức khác với “hợp lý” về nội dung. Việc phát hiện mâu thuẫn (tuyển 5 người cho một vị trí chuyên môn hẹp, yêu cầu 5 năm kinh nghiệm cho mức lương khởi điểm) cần đọc hiểu ngữ nghĩa và so sánh với dữ liệu lịch sử — AI làm tốt, nhưng kết luận phải do người ký.</td><td class="risk-m">TB — AI bỏ sót mâu thuẫn khiến YC “ảo” được duyệt, gây lãng phí một chu kỳ tuyển. Kiểm soát: AI chỉ gắn cờ, không được chặn; người lập YC phản hồi từng cờ.</td></tr>
+<tr class="alt"><td class="c">1.4</td><td>Bổ sung, điều chỉnh nội dung YC sau khi bị trả lại</td><td class="c g1">Thủ công</td><td>Đây là hành vi chịu trách nhiệm của trưởng bộ phận: họ phải giải trình vì sao cần người, vì sao cần đúng số lượng đó. Không thể để máy “tự nghĩ ra lý do kinh doanh” rồi đưa vào hồ sơ chính thức.</td><td class="risk-m">TB — nếu để AI tự viết lý do, hồ sơ có thể chứa căn cứ không đúng thực tế, làm sai lệch cả quyết định ngân sách phía sau.</td></tr>
+<tr><td class="c">1.5</td><td>Phân tích nhu cầu: so sánh với định biên, ngân sách, thời gian tuyển trung bình của các vị trí tương tự; đề xuất phương án (tuyển mới / luân chuyển / kiêm nhiệm)</td><td class="c g3">AI hỗ trợ</td><td>Cần tổng hợp nhiều nguồn dữ liệu và đưa ra <b>phương án</b>, không phải một con số đúng/sai. AI tạo bản phân tích có số liệu; HR và trưởng bộ phận chọn phương án.</td><td class="risk-m">TB — dự báo thời gian/chi phí lệch do dữ liệu lịch sử mỏng, dẫn tới đặt KPI tuyển dụng không khả thi. Kiểm soát: hiển thị cỡ mẫu và khoảng tin cậy, không đưa số điểm duy nhất.</td></tr>
+<tr class="alt"><td class="c">1.6</td><td>Phê duyệt YC vượt ngưỡng (số lượng lớn, ngoài định biên, vượt ngân sách)</td><td class="c g1">Thủ công</td><td>Là quyết định phân bổ nguồn lực, gắn với thẩm quyền tài chính. Không có “ngưỡng tự động” nào hợp lý cho việc tạo cam kết chi phí dài hạn.</td><td class="risk-c">Cao — nếu hệ thống tự duyệt theo luật mềm hoặc agent “đẩy giúp”, tổ chức có thể phát sinh định biên ngoài kế hoạch; sửa chữa đòi hỏi cắt giảm hoặc sa thải, ảnh hưởng người thật.</td></tr>
+</table>
+
+<!-- ============ BUOC 2 ============ -->
+<h3>4.2. Bước 2 — Soạn JD (6 hoạt động)</h3>
+<p>JD là <b>văn bản pháp lý - thương mại</b>: nó vừa là cơ sở để loại ứng viên, vừa là lời hứa với thị trường lao động. Vì vậy JD là nơi AI tạo ra giá trị lớn nhất (soạn thảo) nhưng cũng là nơi <b>con người bắt buộc phải ký</b>.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">2.1</td><td>Sinh bản nháp JD từ mẫu + nội dung phiếu YC + JD tương tự trong kho</td><td class="c g3">AI hỗ trợ</td><td>Đầu vào phi cấu trúc, đầu ra là văn bản dài cần giọng điệu và mạch lạc — đúng sở trường của mô hình ngôn ngữ. Nhưng JD công bố ra ngoài nên <b>không được tự động phát hành</b>.</td><td class="risk-m">TB — AI “thổi phồng” yêu cầu hoặc bịa thêm phúc lợi, khiến nguồn ứng viên thu hẹp hoặc tạo kỳ vọng sai. Kiểm soát: mọi câu về quyền lợi phải trích từ danh mục phúc lợi đã duyệt; chặn câu không có nguồn.</td></tr>
+<tr class="alt"><td class="c">2.2</td><td>Chuẩn hoá JD theo khung năng lực và ngôn ngữ tuyển dụng (động từ hành động, tiêu chí đo được, không định kiến)</td><td class="c g3">AI hỗ trợ</td><td>Phát hiện câu mang tính loại trừ (“chỉ nam”, “dưới 30 tuổi”, “ngoại hình ưa nhìn”) cần hiểu ngữ nghĩa và ngữ cảnh, không thể viết đủ luật. Đây là hoạt động <b>giảm rủi ro pháp lý</b> nên rất đáng đầu tư.</td><td class="risk-m">TB — AI bỏ sót câu mang tính phân biệt, JD vẫn được duyệt và công bố. Kiểm soát: bộ luật cứng chặn từ khoá nhạy cảm (nhóm 2) + AI rà ngữ nghĩa (nhóm 3) + người duyệt (nhóm 1) — ba lớp.</td></tr>
+<tr><td class="c">2.3</td><td>Kiểm tra ràng buộc cứng: lương trong dải đã duyệt, đủ điều khoản bắt buộc, đúng hạn nộp, đúng địa điểm làm việc</td><td class="c g2">Theo luật</td><td>Là các phép so sánh số và kiểm tra sự tồn tại của mục — hoàn toàn xác định, kiểm chứng được, và là loại lỗi <b>tốn kém nhất nếu lọt ra ngoài</b>. Máy làm tốt hơn người vì không mệt.</td><td class="risk-l">Thấp — chặn nhầm JD hợp lệ (ví dụ lương thưởng nằm ngoài dải nhưng đã được duyệt riêng), cần đường ghi đè có lý do và có người ký.</td></tr>
+<tr class="alt"><td class="c">2.4</td><td>Chỉnh sửa JD theo phản hồi của người duyệt</td><td class="c g1">Thủ công</td><td>Việc sửa là <b>đàm phán nội bộ</b> giữa HR và Giám đốc về mức độ yêu cầu, không phải bài toán văn bản. AI có thể gợi ý cách viết lại, nhưng quyết định nhượng bộ yêu cầu nào là quyết định quản trị.</td><td class="risk-m">TB — nếu để AI tự “làm mềm” yêu cầu cho vừa ý người duyệt, JD mất tính nhất quán với khung năng lực.</td></tr>
+<tr><td class="c">2.5</td><td>Xem xét và phê duyệt JD</td><td class="c g1">Thủ công</td><td>Chịu trách nhiệm trước tổ chức và trước pháp luật về nội dung công bố. Không thể chuyển giao cho máy dù máy đã kiểm tra 100% luật — vì trách nhiệm không chuyển giao được.</td><td class="risk-c">Cao — duyệt một JD sai (hứa mức lương không có thẩm quyền, điều kiện trái luật) tạo nghĩa vụ pháp lý và tổn thất thương hiệu tuyển dụng; rất khó thu hồi sau khi đã lan truyền.</td></tr>
+<tr class="alt"><td class="c">2.6</td><td>Phiên bản hoá JD, lưu vết ai sửa gì, khoá bản đã duyệt</td><td class="c g2">Theo luật</td><td>Ghi nhận trạng thái và so sánh phiên bản là thao tác cơ học. Đây là <b>hạ tầng kiểm toán</b> cho các bước sau: khiếu nại của ứng viên chỉ giải quyết được nếu biết chính xác họ đã đọc JD nào.</td><td class="risk-l">Thấp — sai lệch phiên bản gây nhầm lẫn nội bộ nhưng phát hiện được qua log.</td></tr>
+</table>
+
+<!-- ============ BUOC 3 ============ -->
+<h3>4.3. Bước 3 — Đăng tin tuyển dụng (5 hoạt động)</h3>
+<p>Đây là bước <b>có thể tự động hóa gần như hoàn toàn</b> vì đầu ra kiểm chứng được bằng máy (URL tồn tại, tin hiển thị đúng nội dung) và sai sót đảo ngược được (sửa, gỡ, đăng lại).</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">3.1</td><td>Sinh nội dung quảng cáo tuyển dụng cho từng kênh (giới hạn ký tự, giọng điệu, định dạng) từ JD đã duyệt</td><td class="c g3">AI hỗ trợ</td><td>Mỗi kênh có ràng buộc khác nhau; viết lại thủ công là việc lặp tốn thời gian. AI chuyển thể tốt, nhưng nội dung ra thị trường nên vẫn cần người bấm “duyệt đăng”.</td><td class="risk-m">TB — AI thêm chi tiết không có trong JD (mức lương, thưởng, remote) tạo cam kết ngoài ý muốn. Kiểm soát: chỉ cho phép sinh từ JD đã duyệt; so khớp tự động các trường số/thời gian; chặn mọi câu không truy vết được về JD.</td></tr>
+<tr class="alt"><td class="c">3.2</td><td>Đăng tin lên các kênh qua API/connector, kèm cơ chế thử lại và chống trùng</td><td class="c g2">Theo luật</td><td>Tích hợp kỹ thuật thuần tuý: gọi API, nhận mã phản hồi, thử lại khi lỗi mạng. Dùng khoá idempotency để không đăng trùng — điều mà con người rất dễ làm sai khi thao tác nhiều kênh.</td><td class="risk-m">TB — đăng trùng hoặc đăng nhầm kênh gây tốn phí và làm loãng tin. Kiểm soát: khoá idempotency theo (vị trí, kênh, phiên bản JD), huỷ tự động khi phát hiện bản sao.</td></tr>
+<tr><td class="c">3.3</td><td>Kiểm tra tin đã thực sự lên sóng (tồn tại URL, đúng nội dung, đúng hạn)</td><td class="c g2">Theo luật</td><td>Kiểm chứng bằng máy: gọi lại URL, so khớp nội dung, đọc thời hạn. Không cần phán đoán. Đây là bước <b>tự kiểm tra</b> giúp phát hiện lỗi của chính bước 3.2.</td><td class="risk-l">Thấp — báo động giả khi kênh chặn bot; xử lý bằng cách chuyển sang kiểm tra thủ công có nhắc việc.</td></tr>
+<tr class="alt"><td class="c">3.4</td><td>Theo dõi hạn nộp, tự động gia hạn hoặc đóng tin, nhắc HR khi sắp hết hạn</td><td class="c g2">Theo luật</td><td>Thuần tuý thời gian — timer event. Máy không quên, người thì có. Gia hạn/đóng tin là hành động đảo ngược được.</td><td class="risk-m">TB — đóng tin sớm khi còn hồ sơ đang về làm mất ứng viên. Kiểm soát: chỉ đóng khi đã qua hạn <b>và</b> đã xử lý hết CV trong hàng đợi; luôn thông báo trước 24 giờ.</td></tr>
+<tr><td class="c">3.5</td><td>Phân tích hiệu quả kênh và đề xuất phân bổ ngân sách quảng cáo</td><td class="c g3">AI hỗ trợ</td><td>Cần mô hình hóa chi phí trên mỗi ứng viên đạt qua nhiều chu kỳ — có tính dự báo, không có đáp án đúng duy nhất. AI đề xuất, HR quyết định vì liên quan đến chi tiêu.</td><td class="risk-m">TB — đề xuất dồn ngân sách vào kênh có nhiều CV nhưng chất lượng thấp, làm tăng chi phí tuyển. Kiểm soát: tối ưu theo “chi phí/ứng viên đạt” chứ không theo số lượng CV; giới hạn ngân sách do người đặt.</td></tr>
+</table>
+
+<!-- ============ BUOC 4 ============ -->
+<h3>4.4. Bước 4 — Tiếp nhận và sàng lọc CV (8 hoạt động)</h3>
+<p>Đây là bước <b>nhạy cảm nhất về đạo đức và pháp lý</b>, đồng thời là bước tốn nhiều công nhất. Nguyên tắc thiết kế: <b>máy được phép loại khi tiêu chí là khách quan và kiểm chứng được; máy không được phép loại khi tiêu chí cần diễn giải.</b> Vì vậy bước này bị tách thành hai tầng: tầng luật (loại theo điều kiện cứng) và tầng người (quyết định shortlist).</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">4.1</td><td>Nhận CV đa kênh (email, form, sàn), tách tệp, OCR, chống trùng, chuẩn hoá định dạng</td><td class="c g2">Theo luật</td><td>Là xử lý dữ liệu, không phải ra quyết định. Chống trùng bằng hàm băm/email/điện thoại là xác định. Không có lý do để con người làm việc này bằng tay.</td><td class="risk-l">Thấp — mất hoặc trùng CV; phát hiện qua đối soát số lượng và có thể nhập lại.</td></tr>
+<tr class="alt"><td class="c">4.2</td><td>Trích xuất dữ liệu có cấu trúc từ CV (học vấn, số năm kinh nghiệm, kỹ năng, chứng chỉ, ngoại ngữ)</td><td class="c g3">AI hỗ trợ</td><td>CV là văn bản tự do, trình bày vô cùng đa dạng; viết luật cho mọi mẫu CV là bất khả thi. AI trích xuất tốt nhưng vẫn sai ở CV sáng tạo, CV tiếng Việt không dấu, CV dạng ảnh mờ — nên phải có người kiểm tra mẫu và ứng viên có quyền đính chính.</td><td class="risk-m">TB — trích xuất sai số năm kinh nghiệm khiến ứng viên bị loại oan ở tầng sau. Kiểm soát: lưu ảnh gốc + toạ độ trích xuất; hiển thị độ tin cậy; kiểm tra ngẫu nhiên 10% hồ sơ; cho ứng viên xem và sửa hồ sơ đã số hoá.</td></tr>
+<tr><td class="c">4.3</td><td>Chấm điểm theo tiêu chí cứng (knock-out): bằng cấp tối thiểu, số năm kinh nghiệm, chứng chỉ bắt buộc, mức lương kỳ vọng trong dải</td><td class="c g2">Theo luật</td><td>Là các phép so sánh trên dữ liệu đã số hoá. Quy tắc rõ, cùng đầu vào cho cùng kết quả, <b>giải thích được với ứng viên</b>. Đây là lý do chính khiến sàng lọc có thể nhanh mà vẫn công bằng.</td><td class="risk-m">TB — ngưỡng đặt quá cứng (ví dụ bắt buộc “đại học chính quy”) loại oan ứng viên có năng lực tương đương, tạo rủi ro phân biệt đối xử. Kiểm soát: mọi tiêu chí loại phải suy ra trực tiếp từ JD đã duyệt; có cơ chế “vùng xám” chuyển người xem; rà soát tỷ lệ loại theo nhóm mỗi quý.</td></tr>
+<tr class="alt"><td class="c">4.4</td><td>Đánh giá mức phù hợp tổng thể và xếp hạng shortlist (kinh nghiệm tương đương, độ sâu kỹ năng, mức độ liên quan của dự án đã làm)</td><td class="c g3">AI hỗ trợ</td><td>Đây là phán đoán ngữ nghĩa, không có đáp án đúng duy nhất. AI đọc được 500 CV và xếp hạng trong vài phút — giá trị rất lớn — nhưng <b>xếp hạng chỉ là gợi ý thứ tự đọc, không phải quyết định loại</b>.</td><td class="risk-c">Cao — mô hình học từ dữ liệu tuyển dụng cũ có thể tái tạo thiên lệch (trường top, giới tính, vùng miền, khoảng trống sự nghiệp). Sai ở đây vừa mất nhân tài vừa có thể vi phạm quy định về phân biệt đối xử. Kiểm soát: ẩn tên/giới/ngày sinh/ảnh trước khi chấm; kiểm định thiên lệch định kỳ; người rà soát có quyền đảo thứ tự; lưu lý do xếp hạng.</td></tr>
+<tr><td class="c">4.5</td><td>Rà soát shortlist, xử lý hồ sơ “vùng xám”, quyết định ai vào phỏng vấn</td><td class="c g1">Thủ công</td><td>Đây là <b>điểm ra quyết định</b> về cơ hội của một con người. Dù AI xếp hạng tốt đến đâu, việc loại một ứng viên cần một con người đọc hồ sơ và chịu trách nhiệm. Đồng thời đây là nơi bắt được các trường hợp máy hiểu sai.</td><td class="risk-c">Cao — nếu bỏ cổng này (tự động loại 100%), sai sót của AI trở thành quyết định chính thức, không ai phát hiện, và tổ chức không có căn cứ bào chữa khi bị khiếu nại.</td></tr>
+<tr class="alt"><td class="c">4.6</td><td>Gửi thư xác nhận đã nhận hồ sơ và thư từ chối theo mẫu</td><td class="c g2">Theo luật</td><td>Nội dung cố định theo mẫu, cá nhân hoá bằng vài trường dữ liệu. Gửi tự động giải quyết điểm yếu lớn nhất của AS-IS: ứng viên bị “im lặng” — nguyên nhân hàng đầu làm xấu trải nghiệm tuyển dụng.</td><td class="risk-m">TB — gửi từ chối nhầm do danh sách chưa chốt, hoặc gửi trước khi người rà soát xong. Kiểm soát: chỉ gửi sau khi trạng thái hồ sơ được người xác nhận; gộp lô có bước xem trước; nhật ký gửi không thể xoá.</td></tr>
+<tr><td class="c">4.7</td><td>Duy trì talent pool: gắn nhãn kỹ năng, phân loại “tiềm năng cho vị trí khác”, nuôi dưỡng định kỳ</td><td class="c g4">AI Agent</td><td>Công việc lặp, khối lượng lớn, nhiều bước (đọc hồ sơ &rarr; gắn nhãn &rarr; so khớp vị trí mở &rarr; soạn tin &rarr; gửi), tiêu chí thành công kiểm chứng được (nhãn tồn tại, thư đã gửi). Sai thì chỉ phiền, không mất quyền lợi. Đây là ứng viên <b>rất phù hợp</b> cho agent.</td><td class="risk-m">TB — gắn nhãn sai hoặc gửi tin không liên quan nhiều lần khiến ứng viên khó chịu, ảnh hưởng thương hiệu. Kiểm soát: giới hạn tần suất liên hệ, có cơ chế từ chối nhận tin, agent chỉ được gửi trong khung nội dung đã duyệt, toàn bộ hành động ghi log.</td></tr>
+<tr class="alt"><td class="c">4.8</td><td>Xử lý ngoại lệ: CV lỗi không đọc được, ứng viên nộp sai vị trí, ứng viên hỏi lại về trạng thái hồ sơ</td><td class="c g4">AI Agent</td><td>Đây là hàng đợi hội thoại không bao giờ hết, mỗi việc nhỏ và rời rạc, đúng loại việc agent làm tốt: phân loại yêu cầu, trả lời theo tri thức đã duyệt, chuyển người khi vượt thẩm quyền. Không tạo cam kết mới.</td><td class="risk-m">TB — agent trả lời sai chính sách (hạn nộp, mức lương, kết quả) tạo cam kết ngoài ý muốn hoặc làm lộ thông tin. Kiểm soát: chỉ trả lời từ kho tri thức đã kiểm duyệt; không bao giờ tiết lộ điểm đánh giá; bắt buộc chuyển người khi độ tin cậy thấp hoặc khi câu hỏi chứa từ khoá nhạy cảm (lương, khiếu nại, pháp lý).</td></tr>
+</table>
+
+<!-- ============ BUOC 5 ============ -->
+<h3>4.5. Bước 5 — Lập lịch phỏng vấn (5 hoạt động)</h3>
+<p>Trong TO-BE, bước này có thêm nhánh sự kiện: chờ ứng viên xác nhận <b>hoặc</b> hết hạn 2 ngày thì huỷ lịch. Đây là cấu trúc rất phù hợp để tách “phần luật” (khung giờ hợp lệ, nhắc lịch, hết hạn) khỏi “phần đàm phán” (chốt giờ với người).</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">5.1</td><td>Sinh tập khung giờ khả thi từ lịch trống của hội đồng, thời lượng, phòng/hình thức, ràng buộc múi giờ</td><td class="c g2">Theo luật</td><td>Bài toán ràng buộc (constraint satisfaction) có thuật toán xác định. Kết quả kiểm chứng được: mọi slot trả về đều không trùng lịch. Máy giỏi hơn người ở việc này.</td><td class="risk-l">Thấp — slot bị trùng do dữ liệu lịch chưa đồng bộ; phát hiện khi ghi lịch (kiểm tra lại lần hai trước khi commit).</td></tr>
+<tr class="alt"><td class="c">5.2</td><td>Trao đổi nhiều lượt với ứng viên để chốt giờ, xử lý đề nghị đổi giờ, nhắc lại nội dung cần chuẩn bị</td><td class="c g4">AI Agent</td><td>Đây là ví dụ kinh điển của agent: hội thoại nhiều lượt, cần gọi công cụ (xem lịch, giữ chỗ, gửi thư mời), khối lượng lớn, tiêu chí thành công rõ ràng (<b>có một sự kiện lịch được cả hai bên chấp nhận</b>). Sai thì sửa được bằng cách đổi lịch.</td><td class="risk-m">TB — agent chốt sai múi giờ, nhầm người phỏng vấn, hoặc “hứa” những điều ngoài thẩm quyền (đổi hình thức, dời hạn) để chiều ứng viên. Kiểm soát: agent chỉ được chọn trong tập slot do 5.1 sinh ra; không được tạo slot mới; không được thảo luận lương/điều kiện làm việc; mọi thay đổi ngoài tập slot phải chuyển HR; xác nhận hai chiều trước khi commit.</td></tr>
+<tr><td class="c">5.3</td><td>Gửi thư mời, thông báo cho hội đồng, nhắc lịch trước 24 giờ</td><td class="c g2">Theo luật</td><td>Mẫu cố định, thời điểm xác định. Không có yếu tố phán đoán. Máy gửi đúng giờ hơn người.</td><td class="risk-l">Thấp — thư vào spam hoặc gửi trễ; có nhắc lại và kênh dự phòng.</td></tr>
+<tr class="alt"><td class="c">5.4</td><td>Xử lý đổi/hủy lịch và trường hợp không phản hồi sau 2 ngày (nhánh timer trong mô hình)</td><td class="c g4">AI Agent</td><td>Vừa có luật (hết 2 ngày &rarr; huỷ, giải phóng slot) vừa cần đàm phán (mời giờ khác, hỏi lý do, ghi nhận để xếp lại). Agent điều phối cả hai, giảm tình trạng slot bị treo.</td><td class="risk-m">TB — huỷ nhầm lịch của ứng viên thực sự muốn tham gia (do email vào spam), hoặc huỷ xong không ai biết. Kiểm soát: luôn thử kênh thứ hai trước khi huỷ; ghi lý do huỷ; thông báo cho HR; slot chỉ được giải phóng sau khi ghi nhận.</td></tr>
+<tr><td class="c">5.5</td><td>Chuẩn bị bộ tài liệu phỏng vấn: tóm tắt CV, điểm cần khai thác, bộ câu hỏi theo khung năng lực</td><td class="c g3">AI hỗ trợ</td><td>Cần đọc hiểu CV và JD để chọn câu hỏi phù hợp — giá trị cao, tiết kiệm nhiều thời gian chuẩn bị. Nhưng người phỏng vấn phải là người chọn câu hỏi cuối cùng, vì họ chịu trách nhiệm về chất lượng buổi phỏng vấn.</td><td class="risk-m">TB — tóm tắt sai hoặc bỏ sót điểm mạnh của ứng viên khiến buổi phỏng vấn lệch trọng tâm; câu hỏi gợi ý có thể chứa nội dung không phù hợp. Kiểm soát: luôn kèm liên kết tới đoạn gốc trong CV; danh sách câu hỏi lấy từ ngân hàng đã duyệt; người phỏng vấn tick chọn.</td></tr>
+</table>
+
+<!-- ============ BUOC 6 ============ -->
+<h3>4.6. Bước 6 — Đánh giá kết quả phỏng vấn (5 hoạt động)</h3>
+<p>Nguyên tắc: <b>AI được tổng hợp, không được kết luận</b>. Việc “đạt hay không đạt” là quyết định quản trị có thể bị khiếu nại, nên luôn thuộc nhóm thủ công.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">6.1</td><td>Ghi nhận điểm theo scorecard, tính điểm tổng hợp có trọng số, kiểm tra tính đầy đủ của phiếu</td><td class="c g2">Theo luật</td><td>Công thức tính điểm do tổ chức định nghĩa; máy tính chính xác và nhất quán hơn, tránh lỗi cộng nhầm hoặc bỏ trống tiêu chí.</td><td class="risk-l">Thấp — sai trọng số nếu cấu hình nhầm; phát hiện khi so sánh với kỳ trước, sửa và tính lại được.</td></tr>
+<tr class="alt"><td class="c">6.2</td><td>Tổng hợp nhận xét tự luận của nhiều người phỏng vấn thành báo cáo đánh giá có cấu trúc, nêu điểm đồng thuận và điểm mâu thuẫn</td><td class="c g3">AI hỗ trợ</td><td>Đầu vào là ghi chú rời rạc, viết vội; việc gom lại thành báo cáo mất nhiều thời gian và dễ thiên vị người viết sau cùng. AI làm tốt việc này <b>và làm giảm thiên lệch thứ tự</b>, nhưng phải trích nguyên văn để kiểm chứng.</td><td class="risk-m">TB — tóm tắt làm mất sắc thái (“có vẻ ổn” thành “đạt”), hoặc dung hoà mâu thuẫn khiến người duyệt không thấy vấn đề. Kiểm soát: mỗi nhận định phải kèm trích dẫn nguyên văn và người nói; hiển thị rõ các ý kiến trái chiều thay vì gộp.</td></tr>
+<tr><td class="c">6.3</td><td>Rà soát thiên lệch và tính nhất quán giữa những người chấm (cùng một hồ sơ, chênh lệch quá lớn; nhận xét tập trung vào yếu tố không liên quan đến công việc)</td><td class="c g3">AI hỗ trợ</td><td>Con người rất kém việc tự phát hiện thiên lệch của mình. AI so sánh phân bố điểm và sàng lọc ngôn ngữ có thể chỉ ra tín hiệu — nhưng kết luận “có thiên lệch hay không” phải do người xem xét để tránh buộc tội sai.</td><td class="risk-m">TB — cảnh báo quá nhiều (false positive) làm người dùng bỏ qua cảnh báo; hoặc bỏ sót thiên lệch tinh vi. Kiểm soát: chỉ cảnh báo khi vượt ngưỡng thống kê rõ ràng; có báo cáo tổng hợp theo quý để xem xu hướng thay vì chỉ cảnh báo từng ca.</td></tr>
+<tr class="alt"><td class="c">6.4</td><td>Đề xuất kết luận sơ bộ và mức lương đề xuất trong dải đã duyệt</td><td class="c g3">AI hỗ trợ</td><td>Tổng hợp điểm, thâm niên và mặt bằng lương thành một đề xuất là bài toán có dữ liệu — nhưng <b>đây là nơi tiền và kỳ vọng gặp nhau</b>, nên chỉ được là “phương án tham chiếu”.</td><td class="risk-c">Cao — đề xuất vượt dải lương hoặc cao hơn mặt bằng nội bộ tạo tiền lệ phá vỡ thang lương, gây bất bình đẳng nội bộ và tranh chấp. Kiểm soát: kẹp cứng theo dải (clamp); hiển thị percentile so với nội bộ; mọi mức ngoài dải phải có phê duyệt riêng; không hiển thị đề xuất cho ứng viên.</td></tr>
+<tr><td class="c">6.5</td><td>Quyết định đạt / không đạt</td><td class="c g1">Thủ công</td><td>Quyết định về con người, có thể bị khiếu nại, ảnh hưởng trực tiếp đến sinh kế và uy tín tổ chức. Cần một người có thẩm quyền đứng tên. AI có thể chuẩn bị mọi thứ để quyết định nhanh hơn, nhưng không được quyết.</td><td class="risk-c">Cao — nếu tự động hoá, tổ chức mất khả năng giải trình (“vì sao loại ứng viên này?”) và có nguy cơ vi phạm nguyên tắc không phân biệt đối xử trong tuyển dụng.</td></tr>
+</table>
+
+<!-- ============ BUOC 7 ============ -->
+<h3>4.7. Bước 7 — Phê duyệt nhân sự (4 hoạt động)</h3>
+<p>Bước này gần như <b>thuần tuý là luật cộng với một chữ ký</b>. Giá trị tự động hóa nằm ở việc bảo đảm hồ sơ trình duyệt luôn đủ điều kiện và không bị kẹt, chứ không phải ở việc thay người ký.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">7.1</td><td>Kiểm tra điều kiện tiên quyết: đủ điểm tối thiểu, còn định biên, lương trong dải, đã có ý kiến hội đồng</td><td class="c g2">Theo luật</td><td>Là cổng boolean trên dữ liệu đã số hoá. Máy kiểm tra nhanh, không bỏ sót, và <b>quan trọng hơn: ngăn hồ sơ thiếu điều kiện đến tay người duyệt</b> — giảm rủi ro người duyệt tin vào hồ sơ trình sẵn.</td><td class="risk-m">TB — cấu hình điều kiện sai khiến hồ sơ đủ điều kiện bị chặn (ách tắc) hoặc hồ sơ thiếu bị lọt. Kiểm soát: hiển thị rõ điều kiện nào không đạt; có đường ghi đè kèm lý do và người chịu trách nhiệm.</td></tr>
+<tr class="alt"><td class="c">7.2</td><td>Xác định cấp duyệt theo giá trị/mức lương, theo dõi SLA, tự động nhắc và leo thang</td><td class="c g2">Theo luật</td><td>Ma trận thẩm quyền là bảng tra cứu; leo thang là quy tắc thời gian. Tự động hoá khắc phục điểm yếu lớn nhất của AS-IS: hồ sơ nằm chờ vô thời hạn.</td><td class="risk-l">Thấp — leo thang nhầm người hoặc nhắc quá nhiều; điều chỉnh được ngay.</td></tr>
+<tr><td class="c">7.3</td><td>Quyết định phê duyệt / không phê duyệt</td><td class="c g1">Thủ công</td><td>Là hành vi pháp lý và quản trị: người duyệt chịu trách nhiệm về việc nhận một người vào tổ chức, kèm cam kết chi phí dài hạn. Không thể chuyển giao.</td><td class="risk-c">Cao — phê duyệt sai thẩm quyền hoặc vượt ngân sách tạo cam kết tài chính không được phép; sửa chữa thường phải huỷ offer, gây tổn hại quan hệ với ứng viên và uy tín nội bộ.</td></tr>
+<tr class="alt"><td class="c">7.4</td><td>Ghi nhật ký phê duyệt: ai duyệt, khi nào, trên phiên bản hồ sơ nào, ý kiến kèm theo</td><td class="c g2">Theo luật</td><td>Ghi log là thao tác cơ học nhưng là <b>điều kiện để tuân thủ</b>. Nếu thiếu, tổ chức không chứng minh được quyết định tuyển dụng đã đúng quy trình khi bị kiểm toán hoặc khiếu nại.</td><td class="risk-m">TB — log thiếu hoặc sửa được làm mất giá trị chứng cứ. Kiểm soát: log chỉ ghi thêm (append-only), có dấu thời gian và liên kết tới phiên bản hồ sơ bất biến.</td></tr>
+</table>
+
+<!-- ============ BUOC 8 ============ -->
+<h3>4.8. Bước 8 — Lập quyết định tuyển dụng (5 hoạt động)</h3>
+<p>Đây là bước <b>có tỷ lệ tự động hóa cao nhất</b> vì đầu ra là văn bản sinh từ dữ liệu đã được duyệt, và mọi sai lệch đều so khớp được với nguồn. Máy làm tốt hơn người ở đây vì không gõ nhầm.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">8.1</td><td>Sinh quyết định tuyển dụng từ mẫu, điền dữ liệu đã được phê duyệt (họ tên, vị trí, lương, ngày hiệu lực, người quản lý)</td><td class="c g2">Theo luật</td><td>Là bài toán “trộn văn bản” (mail-merge) trên dữ liệu có cấu trúc. Loại bỏ hoàn toàn lỗi gõ tay — nguồn sai sót phổ biến nhất của quyết định nhân sự.</td><td class="risk-m">TB — điền nhầm trường (lương của người khác, sai chức danh) do ánh xạ dữ liệu lỗi. Kiểm soát: ánh xạ có kiểu dữ liệu; hiển thị bản xem trước bắt buộc; chặn xuất bản nếu thiếu trường bắt buộc.</td></tr>
+<tr class="alt"><td class="c">8.2</td><td>Đối chiếu nhất quán giữa quyết định và hồ sơ đã duyệt (lương, chức danh, ngày, định biên)</td><td class="c g2">Theo luật</td><td>So khớp hai nguồn dữ liệu là phép so sánh xác định. Đây là <b>lưới an toàn</b> bắt lỗi của chính bước 8.1 và của mọi thay đổi tay sau đó.</td><td class="risk-c">Cao nếu <b>bỏ qua</b> bước này: quyết định lương khác với mức đã phê duyệt, dẫn tới tranh chấp lao động và phải điều chỉnh hồi tố. Bản thân việc chạy kiểm tra là rủi ro thấp.</td></tr>
+<tr><td class="c">8.3</td><td>Ký số và phát hành quyết định; khoá phiên bản đã ký</td><td class="c g2">Theo luật</td><td>Ký số là thao tác kỹ thuật có xác thực; việc “bấm ký” vẫn là hành vi pháp lý của người có thẩm quyền (được xem là điểm kiểm soát thủ công bên trong hoạt động này). Máy lo phần tạo, gửi, lưu và chống sửa.</td><td class="risk-m">TB — ký nhầm phiên bản nháp hoặc gửi nhầm người nhận. Kiểm soát: khoá phiên bản bằng mã băm; chỉ cho ký bản đã qua 8.2; thu hồi được trong thời gian ngắn.</td></tr>
+<tr class="alt"><td class="c">8.4</td><td>Soạn thư mời nhận việc cá nhân hoá và phương án thương lượng</td><td class="c g3">AI hỗ trợ</td><td>Cần điều chỉnh giọng điệu theo hoàn cảnh ứng viên và đề xuất cách trình bày phương án — có yếu tố quan hệ. AI soạn tốt, nhưng <b>thương lượng thực tế vẫn do người</b> vì liên quan cam kết tài chính.</td><td class="risk-m">TB — AI viết ra điều khoản không có trong phê duyệt (thưởng, thời gian thử việc ngắn hơn). Kiểm soát: chỉ cho phép chọn từ tập điều khoản đã duyệt; so khớp tự động với quyết định; người gửi đọc bản cuối.</td></tr>
+<tr><td class="c">8.5</td><td>Đồng bộ hồ sơ sang HRM, cấp mã nhân sự, lưu trữ theo thời hạn</td><td class="c g2">Theo luật</td><td>Tích hợp hệ thống thuần tuý; cần thiết để bước 9 không phải nhập lại. Đồng bộ lỗi phát hiện được bằng đối soát.</td><td class="risk-l">Thấp — bản ghi trùng hoặc thiếu; đối soát định kỳ phát hiện và sửa được.</td></tr>
+</table>
+
+<!-- ============ BUOC 9 ============ -->
+<h3>4.9. Bước 9 — Tiếp nhận nhân sự (7 hoạt động)</h3>
+<p>Đây là bước <b>chứa nhiều dữ liệu cá nhân nhạy cảm nhất</b> (CCCD, bằng cấp, sức khoẻ) nên mức tự động hóa cao nhưng đi kèm yêu cầu tuân thủ nghiêm ngặt.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:19%">Hoạt động</th><th style="width:11%">Nhóm</th><th style="width:35%">Lý do lựa chọn</th><th style="width:31%">Rủi ro nếu hệ thống sai</th></tr>
+<tr><td class="c">9.1</td><td>Nhắc và xác nhận việc nhận việc, xử lý trường hợp từ chối hoặc quá hạn phản hồi</td><td class="c g4">AI Agent</td><td>Hội thoại nhiều lượt, nhiều kênh, cần theo dõi trạng thái và leo thang; tiêu chí thành công máy kiểm chứng được (có xác nhận hoặc có quyết định chuyển phương án dự bị). Sai thì khôi phục được.</td><td class="risk-m">TB — agent ghi nhận “đã đồng ý” khi ứng viên chỉ hỏi thông tin, hoặc không phát hiện việc ứng viên đổi ý. Kiểm soát: chỉ ghi nhận xác nhận khi có câu trả lời rõ ràng; luôn yêu cầu xác nhận lại bằng văn bản; HR duyệt trạng thái cuối.</td></tr>
+<tr class="alt"><td class="c">9.2</td><td>Thu thập và kiểm tra giấy tờ (CCCD, bằng cấp, chứng chỉ, giấy khám sức khoẻ): OCR, đối chiếu, phát hiện thiếu/hết hạn</td><td class="c g3">AI hỗ trợ</td><td>OCR và so khớp trường dữ liệu là việc AI làm tốt, nhưng <b>tài liệu giả hoặc thông tin sai lệch phải do người kết luận</b>, đặc biệt với dữ liệu nhạy cảm. Đây cũng là nơi cần lưu vết đồng ý của ứng viên.</td><td class="risk-c">Cao — OCR sai số CCCD/ngày cấp dẫn tới hợp đồng và bảo hiểm sai; xử lý dữ liệu sức khoẻ không đúng mục đích vi phạm Nghị định 13/2023/NĐ-CP. Kiểm soát: người xác nhận từng trường quan trọng; phân quyền theo vai trò; thời hạn lưu và xoá tự động; ghi log truy cập.</td></tr>
+<tr><td class="c">9.3</td><td>Cấp tài khoản, email, thiết bị, chỗ ngồi, quyền truy cập theo vai trò</td><td class="c g2">Theo luật</td><td>Là chuỗi tác vụ xác định theo mẫu vai trò (role-based provisioning). Tự động hoá bảo đảm <b>không cấp thừa quyền</b> và không bỏ sót — hai lỗi phổ biến khi làm tay.</td><td class="risk-m">TB — cấp thừa quyền hoặc cấp cho người chưa ký hợp đồng, tạo lỗ hổng an ninh thông tin. Kiểm soát: chỉ kích hoạt sau khi hợp đồng ở trạng thái “đã ký”; thu hồi tự động khi huỷ; rà soát quyền định kỳ.</td></tr>
+<tr class="alt"><td class="c">9.4</td><td>Sinh hợp đồng thử việc từ mẫu đã được pháp chế duyệt</td><td class="c g2">Theo luật</td><td>Văn bản từ mẫu + dữ liệu đã duyệt. Máy không bỏ sót điều khoản bắt buộc và không sửa nhầm mẫu — điều mà bản Word copy-paste rất dễ mắc.</td><td class="risk-m">TB — dùng nhầm phiên bản mẫu cũ hoặc điền sai mức lương. Kiểm soát: mẫu có phiên bản và ngày hiệu lực; đối chiếu với quyết định (8.2); pháp chế duyệt mẫu gốc định kỳ.</td></tr>
+<tr><td class="c">9.5</td><td>Lập kế hoạch onboarding 30–60–90 ngày, phân công người kèm cặp, lịch đào tạo</td><td class="c g3">AI hỗ trợ</td><td>Cần cá nhân hoá theo vị trí, khoảng trống kỹ năng và kinh nghiệm của người mới — có giá trị lớn. Nhưng kế hoạch này ảnh hưởng đến đánh giá thử việc nên quản lý trực tiếp phải duyệt.</td><td class="risk-m">TB — kế hoạch quá tải hoặc lệch trọng tâm khiến nhân viên mới thất bại trong thử việc. Kiểm soát: lấy mốc từ khung năng lực của vị trí; quản lý trực tiếp chỉnh trước khi phát hành; giới hạn số mục tiêu.</td></tr>
+<tr class="alt"><td class="c">9.6</td><td>Theo dõi tín hiệu rủi ro trong 90 ngày đầu (vắng, chậm tiến độ, phản hồi khảo sát) và nhắc quản lý check-in</td><td class="c g4">AI Agent</td><td>Công việc giám sát thụ động, liên tục, nhiều nguồn — con người không làm nổi. Tiêu chí thành công rõ (đã gửi nhắc, đã tạo phiên check-in). Giá trị: giảm nghỉ việc sớm.</td><td class="risk-c">Cao — suy luận sai (“nhân viên này sắp nghỉ”) dẫn tới đối xử khác biệt, giám sát quá mức, ảnh hưởng tâm lý và quan hệ lao động; dữ liệu hiệu suất là dữ liệu cá nhân. Kiểm soát: agent <b>chỉ nhắc, không kết luận</b>; chỉ gửi cho quản lý trực tiếp, không lan sang HR khác; không dùng để đánh giá chính thức; minh bạch với nhân viên; có đường từ chối.</td></tr>
+<tr><td class="c">9.7</td><td>Ký hợp đồng, công nhận chính thức, quyết định hết thử việc</td><td class="c g1">Thủ công</td><td>Là hành vi pháp lý có hiệu lực ràng buộc, gắn với đánh giá con người và thẩm quyền. Không thể chuyển giao cho máy.</td><td class="risk-c">Cao — ký sai, công nhận nhầm người chưa đạt yêu cầu, hoặc chấm dứt sai trình tự dẫn tới tranh chấp lao động và bồi thường.</td></tr>
+</table>
+
+<h2>5. Tổng hợp và các ranh giới không thể vượt</h2>
+
+<h3>5.1. Phân bố theo nhóm</h3>
+<table>
+<tr><th style="width:22%">Nhóm</th><th style="width:10%">Số HĐ</th><th style="width:10%">Tỷ lệ</th><th style="width:58%">Vai trò trong quy trình</th></tr>
+<tr><td class="g1">Giữ thủ công</td><td class="c">8</td><td class="c">16%</td><td>Tập trung đúng vào <b>điểm ra quyết định</b>: phê duyệt YC, duyệt JD, shortlist, kết luận đạt/không đạt, phê duyệt nhân sự, ký hợp đồng. Đây là các điểm tạo ra trách nhiệm giải trình.</td></tr>
+<tr class="alt"><td class="g2">Tự động theo luật</td><td class="c">22</td><td class="c">43%</td><td>Là <b>xương sống vận hành</b>: kiểm tra điều kiện, tính điểm, sinh văn bản, thông báo, đồng bộ, hết hạn. Chiếm tỷ lệ lớn nhất — nghĩa là phần lớn lợi ích đến từ tin học hoá quy tắc, không phải từ AI.</td></tr>
+<tr><td class="g3">Tự động có AI hỗ trợ</td><td class="c">15</td><td class="c">29%</td><td>Tập trung ở <b>nơi có văn bản phi cấu trúc</b>: soạn JD, đọc CV, tóm tắt phỏng vấn, soạn thư mời. Luôn có người xem trước khi dùng.</td></tr>
+<tr class="alt"><td class="g4">Giao cho AI Agent</td><td class="c">6</td><td class="c">12%</td><td>Chỉ ở <b>công việc điều phối lặp lại, đảo ngược được</b>: đàm phán lịch, xử lý ngoại lệ hộp thư, talent pool, xác nhận nhận việc, theo dõi 90 ngày. Không agent nào nắm quyền quyết định.</td></tr>
+</table>
+
+<p class="bar">Thủ công      ████████ 8<br>Tự động luật  ██████████████████████ 22<br>AI hỗ trợ     ███████████████ 15<br>AI Agent      ██████ 6</p>
+
+<h3>5.2. Sáu ranh giới đỏ — không giao cho AI Agent</h3>
+<ol>
+  <li><b>Quyết định tuyển hay không tuyển một con người.</b> Không có tiêu chí kỹ thuật nào biện minh được việc chuyển giao; trách nhiệm pháp lý và đạo đức không chuyển được cho mô hình.</li>
+  <li><b>Cam kết tiền.</b> Không agent nào được tự đưa ra hoặc thay đổi mức lương, thưởng, phụ cấp. Mọi con số phải nằm trong dải đã duyệt và do người xác nhận.</li>
+  <li><b>Gửi thông báo từ chối.</b> Đây là hành động không thể thu hồi và ảnh hưởng trực tiếp đến ứng viên; phải có người xác nhận danh sách trước khi gửi.</li>
+  <li><b>Ký kết và chấm dứt quan hệ lao động.</b> Hành vi pháp lý, bắt buộc do người có thẩm quyền thực hiện.</li>
+  <li><b>Diễn giải dữ liệu sức khoẻ, tôn giáo, dân tộc, công đoàn.</b> Nhóm dữ liệu nhạy cảm theo Nghị định 13/2023/NĐ-CP; chỉ được thu thập khi cần và có đồng ý, không dùng để chấm điểm.</li>
+  <li><b>Đánh giá “văn hoá phù hợp” như một tiêu chí loại tự động.</b> Đây là tiêu chí mơ hồ, dễ trở thành vỏ bọc cho thiên lệch; chỉ được dùng như thông tin tham khảo trong phỏng vấn.</li>
+</ol>
+
+<h3>5.3. Kiến trúc kiểm soát tương ứng từng nhóm</h3>
+<table>
+<tr><th style="width:16%">Nhóm</th><th style="width:28%">Cơ chế bắt buộc</th><th style="width:28%">Cách phát hiện sai</th><th style="width:28%">Cách khôi phục</th></tr>
+<tr><td class="g2">Theo luật</td><td>Quy tắc có phiên bản, có người sở hữu; đường ghi đè kèm lý do và người chịu trách nhiệm.</td><td>Kiểm tra chéo hai nguồn (đối chiếu), báo cáo ngoại lệ hằng ngày.</td><td>Sửa dữ liệu và chạy lại; mọi thao tác có log.</td></tr>
+<tr><td class="g3">AI hỗ trợ</td><td>Bắt buộc hiển thị độ tin cậy và trích dẫn nguồn; người dùng phải chủ động chấp nhận; lưu bản nháp và bản đã sửa.</td><td>Lấy mẫu kiểm tra định kỳ (10%); so sánh tỷ lệ sửa của người dùng — tỷ lệ sửa cao là tín hiệu mô hình kém.</td><td>Quay lại bản nháp gốc; ứng viên được quyền đính chính dữ liệu về mình.</td></tr>
+<tr><td class="g4">AI Agent</td><td>Quyền tối thiểu theo công cụ; giới hạn số bước và ngân sách; chỉ thao tác trong tập lựa chọn hợp lệ; bắt buộc chuyển người khi độ tin cậy thấp; toàn bộ hành động ghi log.</td><td>Kiểm tra hậu điều kiện sau mỗi hành động (lịch có tồn tại? thư đã gửi?); bảng theo dõi can thiệp của người.</td><td>Hoàn tác được (huỷ lịch, thu hồi thư, gỡ nhãn); leo thang cho HR trong cùng ngày.</td></tr>
+</table>
+
+<h3>5.4. Lộ trình triển khai đề xuất</h3>
+<table>
+<tr><th style="width:14%">Giai đoạn</th><th style="width:34%">Nội dung</th><th style="width:26%">Vì sao làm trước/sau</th><th style="width:26%">Kỳ vọng</th></tr>
+<tr><td><b>1. Nền tảng</b><br>(0–3 tháng)</td><td>Nhóm 2 cho bước 3, 7, 8: đăng tin tự động, cổng điều kiện, sinh quyết định, nhật ký.</td><td>Rủi ro thấp, không phụ thuộc AI, tạo dữ liệu sạch để các bước sau dùng.</td><td>Giảm thời gian xử lý giấy tờ; có log kiểm toán.</td></tr>
+<tr><td><b>2. Hỗ trợ</b><br>(3–6 tháng)</td><td>Nhóm 3 cho bước 2, 4, 6: soạn JD, trích xuất CV, tóm tắt phỏng vấn — chạy song song với cách làm cũ.</td><td>Cần thời gian đo tỷ lệ người dùng chấp nhận và xây dựng niềm tin; chưa thể bỏ cổng người.</td><td>Giảm 40–60% thời gian đọc hồ sơ và soạn thảo.</td></tr>
+<tr><td><b>3. Agent</b><br>(6–12 tháng)</td><td>Nhóm 4 cho bước 5 và 9: điều phối lịch, xác nhận nhận việc, ngoại lệ hộp thư — chạy có giám sát.</td><td>Chỉ triển khai khi đã có log, phân quyền và quy trình leo thang từ giai đoạn 1–2.</td><td>Giảm thời gian chờ lịch, giảm tỷ lệ no-show, giảm việc lặp cho HR.</td></tr>
+</table>
+
+<h3>5.5. Chỉ số đo lường</h3>
+<ul>
+  <li><b>Thời gian tuyển (time-to-fill)</b> và <b>thời gian từng bước</b> — mục tiêu chính của tự động hóa.</li>
+  <li><b>Tỷ lệ hồ sơ phải xử lý lại</b> do lỗi dữ liệu — đo chất lượng nhóm 2.</li>
+  <li><b>Tỷ lệ người dùng sửa bản nháp AI</b> và <b>tỷ lệ chấp nhận gợi ý theo từng loại</b> — đo chất lượng nhóm 3.</li>
+  <li><b>Tỷ lệ agent phải chuyển người</b> và <b>số can thiệp/100 tác vụ</b> — đo độ chín của nhóm 4.</li>
+  <li><b>Tỷ lệ loại hồ sơ theo nhóm nhân khẩu</b> (kiểm định thiên lệch) — chỉ số đạo đức bắt buộc phải theo dõi.</li>
+  <li><b>Tỷ lệ ứng viên được phản hồi trong 48 giờ</b> — chỉ số trải nghiệm, cải thiện rõ nhất nhờ nhóm 2.</li>
+</ul>
+
+<h2>6. Phụ lục — Ghi chú kỹ thuật trên mô hình BPMN TO-BE</h2>
+<p>Trong quá trình phân rã, một số điểm của mô hình hiện tại chưa khớp với logic nghiệp vụ và nên chỉnh trước khi trình bày:</p>
+<ol>
+  <li><b>Nhánh “Không đạt” ở cổng kết quả vẫn chạy tiếp sang Lập quyết định.</b> Luồng <i>F_16</i> (Không đạt) đi vào <i>Task_GuiKQ</i> rồi <i>F_17</i> sang <i>Task_LapQD</i> và <i>Task_TiepNhanNS</i>, tức là ứng viên bị loại vẫn được lập quyết định và tiếp nhận. Cần thêm một end event “Không trúng tuyển” sau khi gửi kết quả.</li>
+  <li><b>Nhận CV và hết hạn nộp đang nối tuần tự.</b> <i>SP2_F2</i> nối <i>SP2_NhanCV</i> &rarr; <i>SP2_HetHan</i>, nghĩa là chỉ nhận được một CV rồi chờ đến hết hạn. Nên dùng event-based gateway hoặc vòng lặp: nhận nhiều CV, huỷ nhánh chờ khi hết hạn.</li>
+  <li><b>Tự động loại trước khi người xem.</b> <i>SP2_XOR1</i> cho nhánh “Không đạt” đi thẳng tới <i>SP2_EndLoai1</i>, trong khi nhánh “Đạt” mới qua người lọc. Nên thêm nhánh “vùng xám” cho các hồ sơ sát ngưỡng — đây chính là điểm kiểm soát rủi ro đã phân tích ở hoạt động 4.3–4.5.</li>
+  <li><b>Message flow vào một user task.</b> <i>MF_6</i> đi vào <i>Task_LapQD</i> (user task) trong khi BPMN yêu cầu message phải đến một sự kiện nhận hoặc receive task. Nên đổi thành intermediate message catch event “Nhận xác nhận của ứng viên” trước khi lập quyết định.</li>
+  <li><b>Thiếu nhánh xử lý khi ứng viên từ chối offer.</b> Nếu ứng viên không nhận việc, quy trình hiện không có đường quay lại bước đăng tin/tìm ứng viên dự bị.</li>
+  <li><b>Phân làn chưa nhất quán.</b> <i>Task_TiepNhanNS</i> đang nằm ở làn Phòng ban chuyên môn nhưng bản chất là nghiệp vụ nhân sự.</li>
+</ol>
+
+<p class="small" style="margin-top:16pt">Tài liệu phân tích nội bộ — Nhóm 8, MIS3047. Số liệu phân loại dựa trên mô hình TO-BE “Nhóm 8_BPMN_TOBE_Tuyendungnhansu.bpmn” và đối chiếu với AS-IS “AS_IS_TDNhansu.bpmn”.</p>
+
+</body>
+</html>

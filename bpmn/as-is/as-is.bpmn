@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_ASIS_TuyenDung" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Nhom8 MIS3047" exporterVersion="1.0">
+  <bpmn:error id="Err_LuuCV" name="Lỗi lưu trữ hồ sơ" errorCode="STORAGE_FAIL" />
+  <bpmn:message id="Msg_HoSo" name="Hồ sơ ứng viên" />
+  <bpmn:message id="Msg_LichPV" name="Lịch phỏng vấn" />
+  <bpmn:message id="Msg_KetQua" name="Kết quả tuyển dụng" />
+  <bpmn:message id="Msg_XacNhan" name="Xác nhận nhận việc" />
+  <bpmn:message id="Msg_HuyYC" name="Yêu cầu huỷ tuyển dụng" />
+  <bpmn:collaboration id="Collaboration_ASIS">
+    <bpmn:participant id="Pool_CongTy" name="Công ty" processRef="Process_ASIS" />
+    <bpmn:participant id="Pool_UngVien" name="Ứng viên" processRef="Process_UV" />
+    <bpmn:messageFlow id="MF01" name="Thông báo tuyển dụng" sourceRef="T_DangTinNgoai" targetRef="UV_Start" />
+    <bpmn:messageFlow id="MF02" name="Hồ sơ ứng viên" sourceRef="UV_NopCV" targetRef="E_NhanCV" />
+    <bpmn:messageFlow id="MF03" name="Lịch phỏng vấn" sourceRef="T_ThongBaoPV" targetRef="UV_NhanLich" />
+    <bpmn:messageFlow id="MF04" name="Ứng viên tham gia" sourceRef="UV_ThamGia" targetRef="T_PhongVan" />
+    <bpmn:messageFlow id="MF05" name="Kết quả tuyển dụng" sourceRef="T_GuiKQ" targetRef="UV_NhanKQ" />
+    <bpmn:messageFlow id="MF06" name="Xác nhận nhận việc" sourceRef="UV_XacNhan" targetRef="E_XacNhan" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_ASIS" name="Quy trình tuyển dụng hiện tại" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_ASIS">
+      <bpmn:lane id="Lane_PB" name="Phòng ban chuyên môn">
+        <bpmn:flowNodeRef>E_NhuCau</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_LapYC</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_BoSung</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>D_KeHoach</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_PhongVan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_DanhGia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_KetQua</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_KhongDat</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_NS" name="Phòng Nhân sự">
+        <bpmn:flowNodeRef>T_TiepNhan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_DayDu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_SoanJD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>D_JD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_ChinhJD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_SS_DangTin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_DangTinNgoai</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_DangTinNoiBo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_SJ_DangTin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>D_ThongBao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_SuKien</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_HetHan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_NhanCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_LuuCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>DS_KhoCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_LuuTam</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_SangLoc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_Dat</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_LoaiCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_ChoXuLyLai</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_LapLich</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_ThongBaoPV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_GuiKQ</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_XacNhan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_LapQD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>DS_QuyetDinh</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_TiepNhanNS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>DS_HoSoNS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_KetThuc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>B_LoiLuuCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ESP_HuyYC</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_GD" name="Giám đốc">
+        <bpmn:flowNodeRef>T_DuyetJD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_DuyetJD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_NhacGD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_NhacXong</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_PheDuyet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>B_NhacDuyet</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="E_NhuCau" name="Nhu cầu tuyển dụng phát sinh">
+      <bpmn:outgoing>F01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="T_LapYC" name="Lập yêu cầu tuyển dụng">
+      <bpmn:incoming>F01</bpmn:incoming>
+      <bpmn:outgoing>F02</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:manualTask id="T_BoSung" name="Bổ sung yêu cầu tuyển dụng">
+      <bpmn:incoming>F05</bpmn:incoming>
+      <bpmn:outgoing>F06</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:dataObject id="DO_D_KeHoach" />
+    <bpmn:dataObjectReference id="D_KeHoach" name="Kế hoạch tuyển dụng" dataObjectRef="DO_D_KeHoach" />
+    <bpmn:manualTask id="T_PhongVan" name="Phỏng vấn ứng viên">
+      <bpmn:incoming>F26</bpmn:incoming>
+      <bpmn:outgoing>F27</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="T_DanhGia" name="Đánh giá kết quả phỏng vấn">
+      <bpmn:incoming>F27</bpmn:incoming>
+      <bpmn:outgoing>F28</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="G_KetQua" name="Kết quả phỏng vấn đạt?">
+      <bpmn:incoming>F28</bpmn:incoming>
+      <bpmn:outgoing>F29</bpmn:outgoing>
+      <bpmn:outgoing>F30</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="E_KhongDat" name="Ứng viên không trúng tuyển">
+      <bpmn:incoming>F29</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="T_TiepNhan" name="Tiếp nhận và kiểm tra yêu cầu">
+      <bpmn:incoming>F02</bpmn:incoming>
+      <bpmn:incoming>F06</bpmn:incoming>
+      <bpmn:outgoing>F03</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="G_DayDu" name="Yêu cầu đã đầy đủ?">
+      <bpmn:incoming>F03</bpmn:incoming>
+      <bpmn:outgoing>F04</bpmn:outgoing>
+      <bpmn:outgoing>F05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="T_SoanJD" name="Soạn bản mô tả công việc">
+      <bpmn:incoming>F04</bpmn:incoming>
+      <bpmn:outgoing>F07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:dataObject id="DO_D_JD" />
+    <bpmn:dataObjectReference id="D_JD" name="Bản JD" dataObjectRef="DO_D_JD" />
+    <bpmn:userTask id="T_ChinhJD" name="Chỉnh sửa bản JD">
+      <bpmn:incoming>F09</bpmn:incoming>
+      <bpmn:outgoing>F10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="G_SS_DangTin" name="">
+      <bpmn:incoming>F11</bpmn:incoming>
+      <bpmn:outgoing>F12</bpmn:outgoing>
+      <bpmn:outgoing>F13</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sendTask id="T_DangTinNgoai" name="Đăng tin kênh tuyển dụng ngoài">
+      <bpmn:incoming>F12</bpmn:incoming>
+      <bpmn:outgoing>F14</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:sendTask id="T_DangTinNoiBo" name="Đăng tin cổng thông tin nội bộ">
+      <bpmn:incoming>F13</bpmn:incoming>
+      <bpmn:outgoing>F15</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:parallelGateway id="G_SJ_DangTin" name="">
+      <bpmn:incoming>F14</bpmn:incoming>
+      <bpmn:incoming>F15</bpmn:incoming>
+      <bpmn:outgoing>F16</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:dataObject id="DO_D_ThongBao" />
+    <bpmn:dataObjectReference id="D_ThongBao" name="Thông báo tuyển dụng" dataObjectRef="DO_D_ThongBao" />
+    <bpmn:eventBasedGateway id="G_SuKien" name="Chờ hồ sơ hoặc hết hạn">
+      <bpmn:incoming>F16</bpmn:incoming>
+      <bpmn:outgoing>F17</bpmn:outgoing>
+      <bpmn:outgoing>F18</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="E_HetHan" name="Hết hạn nhận hồ sơ">
+      <bpmn:incoming>F17</bpmn:incoming>
+      <bpmn:outgoing>F19</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TED_E_HetHan"><bpmn:timeDuration>P21D</bpmn:timeDuration></bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="E_NhanCV" name="Hồ sơ ứng viên nộp">
+      <bpmn:incoming>F18</bpmn:incoming>
+      <bpmn:outgoing>F20</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_E_NhanCV" messageRef="Msg_HoSo" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="T_LuuCV" name="Lưu hồ sơ vào Kho CV">
+      <bpmn:incoming>F19</bpmn:incoming>
+      <bpmn:incoming>F20</bpmn:incoming>
+      <bpmn:outgoing>F21</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:dataStoreReference id="DS_KhoCV" name="Kho CV" />
+    <bpmn:manualTask id="T_LuuTam" name="Lưu tạm và báo lỗi kỹ thuật">
+      <bpmn:incoming>F38</bpmn:incoming>
+      <bpmn:outgoing>F39</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="T_SangLoc" name="Sàng lọc hồ sơ thủ công">
+      <bpmn:incoming>F21</bpmn:incoming>
+      <bpmn:outgoing>F22</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="G_Dat" name="Hồ sơ đạt yêu cầu?">
+      <bpmn:incoming>F22</bpmn:incoming>
+      <bpmn:outgoing>F23</bpmn:outgoing>
+      <bpmn:outgoing>F24</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="E_LoaiCV" name="Hồ sơ bị loại">
+      <bpmn:incoming>F23</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="E_ChoXuLyLai" name="Hồ sơ chờ xử lý lại">
+      <bpmn:incoming>F39</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="T_LapLich" name="Lập lịch phỏng vấn">
+      <bpmn:incoming>F24</bpmn:incoming>
+      <bpmn:outgoing>F25</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sendTask id="T_ThongBaoPV" name="Thông báo lịch phỏng vấn">
+      <bpmn:incoming>F25</bpmn:incoming>
+      <bpmn:outgoing>F26</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:sendTask id="T_GuiKQ" name="Gửi kết quả cho ứng viên">
+      <bpmn:incoming>F31</bpmn:incoming>
+      <bpmn:outgoing>F32</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:intermediateCatchEvent id="E_XacNhan" name="Nhận xác nhận của ứng viên">
+      <bpmn:incoming>F32</bpmn:incoming>
+      <bpmn:outgoing>F33</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_E_XacNhan" messageRef="Msg_XacNhan" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="T_LapQD" name="Lập quyết định tuyển dụng">
+      <bpmn:incoming>F33</bpmn:incoming>
+      <bpmn:outgoing>F34</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:dataStoreReference id="DS_QuyetDinh" name="Quyết định tuyển dụng" />
+    <bpmn:userTask id="T_TiepNhanNS" name="Tiếp nhận nhân sự">
+      <bpmn:incoming>F34</bpmn:incoming>
+      <bpmn:outgoing>F35</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:dataStoreReference id="DS_HoSoNS" name="Hồ sơ nhân sự" />
+    <bpmn:endEvent id="E_KetThuc" name="Hoàn tất tuyển dụng">
+      <bpmn:incoming>F35</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:manualTask id="T_DuyetJD" name="Xem xét và phê duyệt JD">
+      <bpmn:incoming>F07</bpmn:incoming>
+      <bpmn:incoming>F10</bpmn:incoming>
+      <bpmn:outgoing>F08</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="G_DuyetJD" name="JD được duyệt?">
+      <bpmn:incoming>F08</bpmn:incoming>
+      <bpmn:outgoing>F09</bpmn:outgoing>
+      <bpmn:outgoing>F11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sendTask id="T_NhacGD" name="Gửi nhắc nhở Giám đốc">
+      <bpmn:incoming>F36</bpmn:incoming>
+      <bpmn:outgoing>F37</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="E_NhacXong" name="Đã nhắc, chờ duyệt tiếp">
+      <bpmn:incoming>F37</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="T_PheDuyet" name="Phê duyệt nhân sự">
+      <bpmn:incoming>F30</bpmn:incoming>
+      <bpmn:outgoing>F31</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="B_NhacDuyet" name="Quá hạn duyệt 3 ngày" attachedToRef="T_DuyetJD" cancelActivity="false">
+
+      <bpmn:outgoing>F36</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TED_B_NhacDuyet"><bpmn:timeDuration>P3D</bpmn:timeDuration></bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="B_LoiLuuCV" name="Lỗi lưu trữ hồ sơ" attachedToRef="T_LuuCV">
+
+      <bpmn:outgoing>F38</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="EED_B_LoiLuuCV" errorRef="Err_LuuCV" />
+    </bpmn:boundaryEvent>
+    <bpmn:subProcess id="ESP_HuyYC" name="Huỷ yêu cầu tuyển dụng" triggeredByEvent="true">
+      <bpmn:startEvent id="ESP_Start" name="Yêu cầu bị huỷ" isInterrupting="true">
+        <bpmn:outgoing>EF01</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MED_ESP_Start" messageRef="Msg_HuyYC" />
+      </bpmn:startEvent>
+      <bpmn:sendTask id="ESP_ThongBao" name="Thông báo huỷ cho các bên">
+        <bpmn:incoming>EF01</bpmn:incoming>
+        <bpmn:outgoing>EF02</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:endEvent id="ESP_End" name="Đã huỷ yêu cầu">
+        <bpmn:incoming>EF02</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="EF01" sourceRef="ESP_Start" targetRef="ESP_ThongBao" />
+      <bpmn:sequenceFlow id="EF02" sourceRef="ESP_ThongBao" targetRef="ESP_End" />
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="F01" sourceRef="E_NhuCau" targetRef="T_LapYC" />
+    <bpmn:sequenceFlow id="F02" sourceRef="T_LapYC" targetRef="T_TiepNhan" />
+    <bpmn:sequenceFlow id="F03" sourceRef="T_TiepNhan" targetRef="G_DayDu" />
+    <bpmn:sequenceFlow id="F04" name="Đầy đủ" sourceRef="G_DayDu" targetRef="T_SoanJD" />
+    <bpmn:sequenceFlow id="F05" name="Thiếu thông tin" sourceRef="G_DayDu" targetRef="T_BoSung" />
+    <bpmn:sequenceFlow id="F06" name="Gửi lại" sourceRef="T_BoSung" targetRef="T_TiepNhan" />
+    <bpmn:sequenceFlow id="F07" sourceRef="T_SoanJD" targetRef="T_DuyetJD" />
+    <bpmn:sequenceFlow id="F08" sourceRef="T_DuyetJD" targetRef="G_DuyetJD" />
+    <bpmn:sequenceFlow id="F09" name="Không duyệt" sourceRef="G_DuyetJD" targetRef="T_ChinhJD" />
+    <bpmn:sequenceFlow id="F10" name="Gửi lại" sourceRef="T_ChinhJD" targetRef="T_DuyetJD" />
+    <bpmn:sequenceFlow id="F11" name="Duyệt" sourceRef="G_DuyetJD" targetRef="G_SS_DangTin" />
+    <bpmn:sequenceFlow id="F12" sourceRef="G_SS_DangTin" targetRef="T_DangTinNgoai" />
+    <bpmn:sequenceFlow id="F13" sourceRef="G_SS_DangTin" targetRef="T_DangTinNoiBo" />
+    <bpmn:sequenceFlow id="F14" sourceRef="T_DangTinNgoai" targetRef="G_SJ_DangTin" />
+    <bpmn:sequenceFlow id="F15" sourceRef="T_DangTinNoiBo" targetRef="G_SJ_DangTin" />
+    <bpmn:sequenceFlow id="F16" sourceRef="G_SJ_DangTin" targetRef="G_SuKien" />
+    <bpmn:sequenceFlow id="F17" sourceRef="G_SuKien" targetRef="E_HetHan" />
+    <bpmn:sequenceFlow id="F18" sourceRef="G_SuKien" targetRef="E_NhanCV" />
+    <bpmn:sequenceFlow id="F19" sourceRef="E_HetHan" targetRef="T_LuuCV" />
+    <bpmn:sequenceFlow id="F20" sourceRef="E_NhanCV" targetRef="T_LuuCV" />
+    <bpmn:sequenceFlow id="F21" sourceRef="T_LuuCV" targetRef="T_SangLoc" />
+    <bpmn:sequenceFlow id="F22" sourceRef="T_SangLoc" targetRef="G_Dat" />
+    <bpmn:sequenceFlow id="F23" name="Không đạt" sourceRef="G_Dat" targetRef="E_LoaiCV" />
+    <bpmn:sequenceFlow id="F24" name="Đạt" sourceRef="G_Dat" targetRef="T_LapLich" />
+    <bpmn:sequenceFlow id="F25" sourceRef="T_LapLich" targetRef="T_ThongBaoPV" />
+    <bpmn:sequenceFlow id="F26" sourceRef="T_ThongBaoPV" targetRef="T_PhongVan" />
+    <bpmn:sequenceFlow id="F27" sourceRef="T_PhongVan" targetRef="T_DanhGia" />
+    <bpmn:sequenceFlow id="F28" sourceRef="T_DanhGia" targetRef="G_KetQua" />
+    <bpmn:sequenceFlow id="F29" name="Không đạt" sourceRef="G_KetQua" targetRef="E_KhongDat" />
+    <bpmn:sequenceFlow id="F30" name="Đạt" sourceRef="G_KetQua" targetRef="T_PheDuyet" />
+    <bpmn:sequenceFlow id="F31" sourceRef="T_PheDuyet" targetRef="T_GuiKQ" />
+    <bpmn:sequenceFlow id="F32" sourceRef="T_GuiKQ" targetRef="E_XacNhan" />
+    <bpmn:sequenceFlow id="F33" sourceRef="E_XacNhan" targetRef="T_LapQD" />
+    <bpmn:sequenceFlow id="F34" sourceRef="T_LapQD" targetRef="T_TiepNhanNS" />
+    <bpmn:sequenceFlow id="F35" sourceRef="T_TiepNhanNS" targetRef="E_KetThuc" />
+    <bpmn:sequenceFlow id="F36" sourceRef="B_NhacDuyet" targetRef="T_NhacGD" />
+    <bpmn:sequenceFlow id="F37" sourceRef="T_NhacGD" targetRef="E_NhacXong" />
+    <bpmn:sequenceFlow id="F38" sourceRef="B_LoiLuuCV" targetRef="T_LuuTam" />
+    <bpmn:sequenceFlow id="F39" sourceRef="T_LuuTam" targetRef="E_ChoXuLyLai" />
+  </bpmn:process>
+  <bpmn:process id="Process_UV" name="Quy trình phía ứng viên" isExecutable="false">
+    <bpmn:startEvent id="UV_Start" name="Biết tin tuyển dụng">
+      <bpmn:outgoing>UF01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:manualTask id="UV_ChuanBiCV" name="Chuẩn bị hồ sơ">
+      <bpmn:incoming>UF01</bpmn:incoming>
+      <bpmn:outgoing>UF02</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="UV_NopCV" name="Nộp hồ sơ">
+      <bpmn:incoming>UF02</bpmn:incoming>
+      <bpmn:outgoing>UF03</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateCatchEvent id="UV_NhanLich" name="Nhận lịch phỏng vấn">
+      <bpmn:incoming>UF03</bpmn:incoming>
+      <bpmn:outgoing>UF04</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_UV_NhanLich" messageRef="Msg_LichPV" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="UV_ThamGia" name="Tham gia phỏng vấn">
+      <bpmn:incoming>UF04</bpmn:incoming>
+      <bpmn:outgoing>UF05</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateCatchEvent id="UV_NhanKQ" name="Nhận kết quả">
+      <bpmn:incoming>UF05</bpmn:incoming>
+      <bpmn:outgoing>UF06</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_UV_NhanKQ" messageRef="Msg_KetQua" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="UV_XacNhan" name="Xác nhận nhận việc">
+      <bpmn:incoming>UF06</bpmn:incoming>
+      <bpmn:outgoing>UF07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="UV_End" name="Hoàn tất ứng tuyển">
+      <bpmn:incoming>UF07</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="UF01" sourceRef="UV_Start" targetRef="UV_ChuanBiCV" />
+    <bpmn:sequenceFlow id="UF02" sourceRef="UV_ChuanBiCV" targetRef="UV_NopCV" />
+    <bpmn:sequenceFlow id="UF03" sourceRef="UV_NopCV" targetRef="UV_NhanLich" />
+    <bpmn:sequenceFlow id="UF04" sourceRef="UV_NhanLich" targetRef="UV_ThamGia" />
+    <bpmn:sequenceFlow id="UF05" sourceRef="UV_ThamGia" targetRef="UV_NhanKQ" />
+    <bpmn:sequenceFlow id="UF06" sourceRef="UV_NhanKQ" targetRef="UV_XacNhan" />
+    <bpmn:sequenceFlow id="UF07" sourceRef="UV_XacNhan" targetRef="UV_End" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_ASIS">
+      <bpmndi:BPMNShape id="Pool_CongTy_di" bpmnElement="Pool_CongTy" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="4460" height="760" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_PB_di" bpmnElement="Lane_PB">
+        <dc:Bounds x="190" y="80" width="4430" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_NS_di" bpmnElement="Lane_NS">
+        <dc:Bounds x="190" y="300" width="4430" height="380" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_GD_di" bpmnElement="Lane_GD">
+        <dc:Bounds x="190" y="680" width="4430" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_UngVien_di" bpmnElement="Pool_UngVien" isHorizontal="true">
+        <dc:Bounds x="160" y="880" width="4460" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_NhuCau_di" bpmnElement="E_NhuCau">
+        <dc:Bounds x="250" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LapYC_di" bpmnElement="T_LapYC">
+        <dc:Bounds x="330" y="130" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_BoSung_di" bpmnElement="T_BoSung">
+        <dc:Bounds x="520" y="130" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="D_KeHoach_di" bpmnElement="D_KeHoach">
+        <dc:Bounds x="330" y="240" width="36" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_PhongVan_di" bpmnElement="T_PhongVan">
+        <dc:Bounds x="3140" y="130" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_DanhGia_di" bpmnElement="T_DanhGia">
+        <dc:Bounds x="3340" y="130" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_KetQua_di" bpmnElement="G_KetQua">
+        <dc:Bounds x="3540" y="145" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_KhongDat_di" bpmnElement="E_KhongDat">
+        <dc:Bounds x="3640" y="250" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_TiepNhan_di" bpmnElement="T_TiepNhan">
+        <dc:Bounds x="710" y="340" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_DayDu_di" bpmnElement="G_DayDu">
+        <dc:Bounds x="900" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_SoanJD_di" bpmnElement="T_SoanJD">
+        <dc:Bounds x="1000" y="340" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="D_JD_di" bpmnElement="D_JD">
+        <dc:Bounds x="990" y="455" width="36" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_ChinhJD_di" bpmnElement="T_ChinhJD">
+        <dc:Bounds x="1280" y="340" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_SS_DangTin_di" bpmnElement="G_SS_DangTin">
+        <dc:Bounds x="1530" y="410" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_DangTinNgoai_di" bpmnElement="T_DangTinNgoai">
+        <dc:Bounds x="1630" y="340" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_DangTinNoiBo_di" bpmnElement="T_DangTinNoiBo">
+        <dc:Bounds x="1630" y="450" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_SJ_DangTin_di" bpmnElement="G_SJ_DangTin">
+        <dc:Bounds x="1850" y="410" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="D_ThongBao_di" bpmnElement="D_ThongBao">
+        <dc:Bounds x="1790" y="545" width="36" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_SuKien_di" bpmnElement="G_SuKien">
+        <dc:Bounds x="1990" y="410" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_HetHan_di" bpmnElement="E_HetHan">
+        <dc:Bounds x="2090" y="357" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_NhanCV_di" bpmnElement="E_NhanCV">
+        <dc:Bounds x="2090" y="482" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LuuCV_di" bpmnElement="T_LuuCV">
+        <dc:Bounds x="2190" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DS_KhoCV_di" bpmnElement="DS_KhoCV">
+        <dc:Bounds x="2183" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LuuTam_di" bpmnElement="T_LuuTam">
+        <dc:Bounds x="2360" y="540" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_SangLoc_di" bpmnElement="T_SangLoc">
+        <dc:Bounds x="2390" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Dat_di" bpmnElement="G_Dat">
+        <dc:Bounds x="2590" y="410" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_LoaiCV_di" bpmnElement="E_LoaiCV">
+        <dc:Bounds x="2597" y="500" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_ChoXuLyLai_di" bpmnElement="E_ChoXuLyLai">
+        <dc:Bounds x="2700" y="562" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LapLich_di" bpmnElement="T_LapLich">
+        <dc:Bounds x="2700" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_ThongBaoPV_di" bpmnElement="T_ThongBaoPV">
+        <dc:Bounds x="2900" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_GuiKQ_di" bpmnElement="T_GuiKQ">
+        <dc:Bounds x="3840" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_XacNhan_di" bpmnElement="E_XacNhan">
+        <dc:Bounds x="4040" y="417" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LapQD_di" bpmnElement="T_LapQD">
+        <dc:Bounds x="4140" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DS_QuyetDinh_di" bpmnElement="DS_QuyetDinh">
+        <dc:Bounds x="4140" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_TiepNhanNS_di" bpmnElement="T_TiepNhanNS">
+        <dc:Bounds x="4340" y="395" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DS_HoSoNS_di" bpmnElement="DS_HoSoNS">
+        <dc:Bounds x="4340" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_KetThuc_di" bpmnElement="E_KetThuc">
+        <dc:Bounds x="4540" y="417" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_DuyetJD_di" bpmnElement="T_DuyetJD">
+        <dc:Bounds x="1180" y="720" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_DuyetJD_di" bpmnElement="G_DuyetJD">
+        <dc:Bounds x="1400" y="735" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_NhacGD_di" bpmnElement="T_NhacGD">
+        <dc:Bounds x="1000" y="720" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_NhacXong_di" bpmnElement="E_NhacXong">
+        <dc:Bounds x="860" y="782" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_PheDuyet_di" bpmnElement="T_PheDuyet">
+        <dc:Bounds x="3620" y="720" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_NhacDuyet_di" bpmnElement="B_NhacDuyet">
+        <dc:Bounds x="1212" y="782" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_LoiLuuCV_di" bpmnElement="B_LoiLuuCV">
+        <dc:Bounds x="2270" y="457" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ESP_HuyYC_di" bpmnElement="ESP_HuyYC">
+        <dc:Bounds x="2800" y="545" width="520" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ESP_Start_di" bpmnElement="ESP_Start">
+        <dc:Bounds x="2850" y="587" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ESP_ThongBao_di" bpmnElement="ESP_ThongBao">
+        <dc:Bounds x="2950" y="565" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ESP_End_di" bpmnElement="ESP_End">
+        <dc:Bounds x="3150" y="587" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_Start_di" bpmnElement="UV_Start">
+        <dc:Bounds x="1650" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_ChuanBiCV_di" bpmnElement="UV_ChuanBiCV">
+        <dc:Bounds x="1750" y="915" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_NopCV_di" bpmnElement="UV_NopCV">
+        <dc:Bounds x="2000" y="915" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_NhanLich_di" bpmnElement="UV_NhanLich">
+        <dc:Bounds x="2900" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_ThamGia_di" bpmnElement="UV_ThamGia">
+        <dc:Bounds x="3140" y="915" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_NhanKQ_di" bpmnElement="UV_NhanKQ">
+        <dc:Bounds x="3840" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_XacNhan_di" bpmnElement="UV_XacNhan">
+        <dc:Bounds x="4020" y="915" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UV_End_di" bpmnElement="UV_End">
+        <dc:Bounds x="4190" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F01_di" bpmnElement="F01">
+        <di:waypoint x="286" y="170" />
+        <di:waypoint x="330" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F02_di" bpmnElement="F02">
+        <di:waypoint x="395" y="210" />
+        <di:waypoint x="395" y="300" />
+        <di:waypoint x="775" y="300" />
+        <di:waypoint x="775" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F03_di" bpmnElement="F03">
+        <di:waypoint x="840" y="380" />
+        <di:waypoint x="900" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F04_di" bpmnElement="F04">
+        <di:waypoint x="950" y="380" />
+        <di:waypoint x="1000" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F05_di" bpmnElement="F05">
+        <di:waypoint x="925" y="355" />
+        <di:waypoint x="925" y="170" />
+        <di:waypoint x="650" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F06_di" bpmnElement="F06">
+        <di:waypoint x="585" y="210" />
+        <di:waypoint x="585" y="380" />
+        <di:waypoint x="710" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F07_di" bpmnElement="F07">
+        <di:waypoint x="1130" y="380" />
+        <di:waypoint x="1155" y="380" />
+        <di:waypoint x="1155" y="760" />
+        <di:waypoint x="1180" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F08_di" bpmnElement="F08">
+        <di:waypoint x="1310" y="760" />
+        <di:waypoint x="1400" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F09_di" bpmnElement="F09">
+        <di:waypoint x="1450" y="760" />
+        <di:waypoint x="1470" y="760" />
+        <di:waypoint x="1470" y="380" />
+        <di:waypoint x="1410" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F10_di" bpmnElement="F10">
+        <di:waypoint x="1280" y="380" />
+        <di:waypoint x="1245" y="380" />
+        <di:waypoint x="1245" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F11_di" bpmnElement="F11">
+        <di:waypoint x="1450" y="760" />
+        <di:waypoint x="1490" y="760" />
+        <di:waypoint x="1490" y="435" />
+        <di:waypoint x="1530" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F12_di" bpmnElement="F12">
+        <di:waypoint x="1580" y="435" />
+        <di:waypoint x="1605" y="435" />
+        <di:waypoint x="1605" y="380" />
+        <di:waypoint x="1630" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F13_di" bpmnElement="F13">
+        <di:waypoint x="1580" y="435" />
+        <di:waypoint x="1605" y="435" />
+        <di:waypoint x="1605" y="490" />
+        <di:waypoint x="1630" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F14_di" bpmnElement="F14">
+        <di:waypoint x="1760" y="380" />
+        <di:waypoint x="1805" y="380" />
+        <di:waypoint x="1805" y="435" />
+        <di:waypoint x="1850" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F15_di" bpmnElement="F15">
+        <di:waypoint x="1760" y="490" />
+        <di:waypoint x="1805" y="490" />
+        <di:waypoint x="1805" y="435" />
+        <di:waypoint x="1850" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F16_di" bpmnElement="F16">
+        <di:waypoint x="1900" y="435" />
+        <di:waypoint x="1990" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F17_di" bpmnElement="F17">
+        <di:waypoint x="2015" y="410" />
+        <di:waypoint x="2015" y="375" />
+        <di:waypoint x="2090" y="375" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F18_di" bpmnElement="F18">
+        <di:waypoint x="2015" y="460" />
+        <di:waypoint x="2015" y="500" />
+        <di:waypoint x="2090" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F19_di" bpmnElement="F19">
+        <di:waypoint x="2126" y="375" />
+        <di:waypoint x="2160" y="375" />
+        <di:waypoint x="2160" y="435" />
+        <di:waypoint x="2190" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F20_di" bpmnElement="F20">
+        <di:waypoint x="2126" y="500" />
+        <di:waypoint x="2160" y="500" />
+        <di:waypoint x="2160" y="435" />
+        <di:waypoint x="2190" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F21_di" bpmnElement="F21">
+        <di:waypoint x="2320" y="435" />
+        <di:waypoint x="2390" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F22_di" bpmnElement="F22">
+        <di:waypoint x="2520" y="435" />
+        <di:waypoint x="2590" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F23_di" bpmnElement="F23">
+        <di:waypoint x="2615" y="460" />
+        <di:waypoint x="2615" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F24_di" bpmnElement="F24">
+        <di:waypoint x="2640" y="435" />
+        <di:waypoint x="2700" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F25_di" bpmnElement="F25">
+        <di:waypoint x="2830" y="435" />
+        <di:waypoint x="2900" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F26_di" bpmnElement="F26">
+        <di:waypoint x="3030" y="435" />
+        <di:waypoint x="3090" y="435" />
+        <di:waypoint x="3090" y="170" />
+        <di:waypoint x="3140" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F27_di" bpmnElement="F27">
+        <di:waypoint x="3270" y="170" />
+        <di:waypoint x="3340" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F28_di" bpmnElement="F28">
+        <di:waypoint x="3470" y="170" />
+        <di:waypoint x="3540" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F29_di" bpmnElement="F29">
+        <di:waypoint x="3565" y="195" />
+        <di:waypoint x="3565" y="268" />
+        <di:waypoint x="3640" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F30_di" bpmnElement="F30">
+        <di:waypoint x="3590" y="170" />
+        <di:waypoint x="3685" y="170" />
+        <di:waypoint x="3685" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F31_di" bpmnElement="F31">
+        <di:waypoint x="3750" y="760" />
+        <di:waypoint x="3790" y="760" />
+        <di:waypoint x="3790" y="435" />
+        <di:waypoint x="3840" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F32_di" bpmnElement="F32">
+        <di:waypoint x="3970" y="435" />
+        <di:waypoint x="4040" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F33_di" bpmnElement="F33">
+        <di:waypoint x="4076" y="435" />
+        <di:waypoint x="4140" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F34_di" bpmnElement="F34">
+        <di:waypoint x="4270" y="435" />
+        <di:waypoint x="4340" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F35_di" bpmnElement="F35">
+        <di:waypoint x="4470" y="435" />
+        <di:waypoint x="4540" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F36_di" bpmnElement="F36">
+        <di:waypoint x="1212" y="800" />
+        <di:waypoint x="1065" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F37_di" bpmnElement="F37">
+        <di:waypoint x="1000" y="760" />
+        <di:waypoint x="948" y="760" />
+        <di:waypoint x="948" y="800" />
+        <di:waypoint x="896" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F38_di" bpmnElement="F38">
+        <di:waypoint x="2288" y="493" />
+        <di:waypoint x="2288" y="580" />
+        <di:waypoint x="2360" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F39_di" bpmnElement="F39">
+        <di:waypoint x="2490" y="580" />
+        <di:waypoint x="2700" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="EF01_di" bpmnElement="EF01">
+        <di:waypoint x="2886" y="605" />
+        <di:waypoint x="2950" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="EF02_di" bpmnElement="EF02">
+        <di:waypoint x="3080" y="605" />
+        <di:waypoint x="3150" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF01_di" bpmnElement="UF01">
+        <di:waypoint x="1686" y="955" />
+        <di:waypoint x="1750" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF02_di" bpmnElement="UF02">
+        <di:waypoint x="1880" y="955" />
+        <di:waypoint x="2000" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF03_di" bpmnElement="UF03">
+        <di:waypoint x="2130" y="955" />
+        <di:waypoint x="2900" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF04_di" bpmnElement="UF04">
+        <di:waypoint x="2936" y="955" />
+        <di:waypoint x="3140" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF05_di" bpmnElement="UF05">
+        <di:waypoint x="3270" y="955" />
+        <di:waypoint x="3840" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF06_di" bpmnElement="UF06">
+        <di:waypoint x="3876" y="955" />
+        <di:waypoint x="4020" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="UF07_di" bpmnElement="UF07">
+        <di:waypoint x="4150" y="955" />
+        <di:waypoint x="4190" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF01_di" bpmnElement="MF01">
+        <di:waypoint x="1695" y="420" />
+        <di:waypoint x="1668" y="937" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF02_di" bpmnElement="MF02">
+        <di:waypoint x="2065" y="915" />
+        <di:waypoint x="2108" y="518" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF03_di" bpmnElement="MF03">
+        <di:waypoint x="2965" y="475" />
+        <di:waypoint x="2918" y="937" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF04_di" bpmnElement="MF04">
+        <di:waypoint x="3205" y="915" />
+        <di:waypoint x="3205" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF05_di" bpmnElement="MF05">
+        <di:waypoint x="3905" y="475" />
+        <di:waypoint x="3858" y="937" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF06_di" bpmnElement="MF06">
+        <di:waypoint x="4085" y="915" />
+        <di:waypoint x="4058" y="453" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

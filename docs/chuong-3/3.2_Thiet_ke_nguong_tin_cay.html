@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Muc 3.2 - Nguong do tin cay AI sang loc ho so</title>
+<style>
+body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.35; color: #111; }
+h1 { font-size: 15pt; text-align: center; margin: 0 0 4pt 0; color: #1f3864; }
+.sub { text-align: center; font-size: 10.5pt; font-style: italic; color: #444; margin: 0 0 16pt 0; }
+h2 { font-size: 13pt; margin: 18pt 0 6pt 0; border-bottom: 1.5pt solid #1f3864; padding-bottom: 3pt; color: #1f3864; }
+h3 { font-size: 11.5pt; margin: 12pt 0 4pt 0; color: #1f3864; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 20pt; }
+li { margin-bottom: 3pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 4pt 0; font-size: 8.5pt; }
+th { background: #1f3864; color: #fff; border: 0.5pt solid #7f7f7f; padding: 4pt 3pt; text-align: center; font-weight: bold; }
+td { border: 0.5pt solid #7f7f7f; padding: 3pt; vertical-align: top; }
+tr.alt td { background: #f2f5fa; }
+tr.tot td { background: #e6e6e6; font-weight: bold; }
+tr.best td { background: #e2efd9; font-weight: bold; }
+.c { text-align: center; }
+.r { text-align: right; }
+.formula { text-align: center; font-size: 12pt; font-style: italic; margin: 8pt 0 8pt 0; padding: 8pt; background: #f5f5f5; border-top: 0.5pt solid #999; border-bottom: 0.5pt solid #999; }
+.note { background: #f7f7f7; border-left: 3pt solid #1f3864; padding: 6pt 8pt; margin: 8pt 0; font-size: 10.5pt; }
+.warn { background: #fdf1e8; border-left: 3pt solid #b36b00; padding: 6pt 8pt; margin: 8pt 0; font-size: 10.5pt; }
+.hi { color: #b00000; font-weight: bold; }
+.good { color: #1f7a1f; font-weight: bold; }
+.cap { font-size: 9pt; font-style: italic; color: #555; margin: 2pt 0 12pt 0; text-align: center; }
+.small { font-size: 9pt; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>3.2. Thiết kế ngưỡng độ tin cậy (Confidence Threshold)<br>cho bước sàng lọc hồ sơ tự động</h1>
+<p class="sub">Quy trình TO-BE Tuyển dụng nhân sự — Nhóm 8, MIS3047</p>
+
+<h2>3.2.1. Vị trí của bài toán</h2>
+<p>Trong phân rã ở mục 3.1, bước 4 “Tiếp nhận &amp; sàng lọc hồ sơ” gồm ba lớp xử lý nối tiếp nhau: <b>trích xuất dữ liệu từ CV</b> (hoạt động 4.2 — AI hỗ trợ), <b>chấm điểm theo tiêu chí cứng</b> (4.3 — tự động theo luật) và <b>đánh giá mức phù hợp tổng thể</b> (4.4 — AI hỗ trợ). Câu hỏi đặt ra ở đây không phải “AI có đọc được CV không” mà là: <b>khi nào được phép để máy tự kết luận thay con người?</b></p>
+
+<p>Mỗi hồ sơ đi qua mô hình sẽ nhận về hai thứ: một <b>nhãn</b> (Đạt / Không đạt) và một <b>độ tin cậy p &isin; [0,1]</b>. Cần phân biệt rõ hai khái niệm:</p>
+<ul>
+  <li><b>p kỹ thuật</b> (raw score, softmax) — con số mô hình tự sinh ra.</li>
+  <li><b>p hiệu chỉnh</b> (calibrated confidence) — xác suất thực nghiệm rằng nhãn của mô hình đúng, đo trên tập kiểm định theo từng dải. <b>Toàn bộ mục này dùng p hiệu chỉnh</b>, vì chỉ nó mới kiểm chứng được bằng thực nghiệm. Nếu mô hình chưa hiệu chỉnh (sai số hiệu chuẩn ECE &gt; 0,05) thì mọi ngưỡng bên dưới đều vô nghĩa.</li>
+</ul>
+
+<p>Ba lựa chọn cho mỗi hồ sơ: <b>(1) để AI tự quyết</b>, <b>(2) chuyển HR xem thủ công</b>, <b>(3) chặn cứng và không cho AI tham gia</b>. Bài toán ngưỡng là bài toán chọn giữa (1) và (2) sao cho tổng chi phí kỳ vọng nhỏ nhất — trong khi (3) được dành cho một số ít trường hợp đặc biệt trình bày ở mục 3.2.6.</p>
+
+<h2>3.2.2. Giả định chi phí đầu vào</h2>
+
+<h3>a) Chi phí xử lý thủ công một hồ sơ (X)</h3>
+<p>X là chi phí <b>đầy đủ</b> để một chuyên viên HR đọc, đối chiếu với JD, ghi nhận kết quả và chuyển trạng thái cho một hồ sơ.</p>
+<table>
+<tr><th style="width:46%">Thành phần</th><th style="width:22%">Cách tính</th><th style="width:16%">Giá trị (đồng)</th><th style="width:16%">Ghi chú</th></tr>
+<tr><td>Lương gross bình quân chuyên viên tuyển dụng</td><td>15.000.000/tháng</td><td class="r">15.000.000</td><td>Theo mặt bằng nội bộ</td></tr>
+<tr class="alt"><td>Bảo hiểm và chi phí người sử dụng lao động</td><td>21,5% lương</td><td class="r">3.225.000</td><td>BHXH, BHYT, BHTN, KPCĐ</td></tr>
+<tr><td>Chi phí vận hành phân bổ (máy tính, phần mềm, quản lý)</td><td>30% lương</td><td class="r">4.500.000</td><td>Phân bổ theo giờ làm việc</td></tr>
+<tr class="alt"><td><b>Tổng chi phí/tháng</b></td><td></td><td class="r"><b>22.725.000</b></td><td></td></tr>
+<tr><td>Quy đổi theo giờ</td><td>22.725.000 ÷ 176 giờ</td><td class="r">129.120</td><td>22 ngày × 8 giờ</td></tr>
+<tr class="alt"><td>Thời gian xử lý một hồ sơ</td><td>Đọc CV, đối chiếu JD, ghi nhận, chuyển trạng thái</td><td class="r">10 phút</td><td>Đo trên mẫu 50 hồ sơ</td></tr>
+<tr class="tot"><td colspan="2"><b>X — chi phí thủ công một hồ sơ</b></td><td class="r"><b>25.000</b></td><td>Làm tròn lên</td></tr>
+</table>
+
+<h3>b) Thiệt hại khi quyết định sai (Y)</h3>
+<p>Điểm mấu chốt: <b>hai loại sai có chi phí hoàn toàn khác nhau và không được dùng chung một con số Y</b>.</p>
+
+<p><b>Y<sub>R</sub> — loại oan một hồ sơ đạt (false reject).</b> Đây là lỗi <b>không quan sát được</b>: không ai biết mình vừa mất ai, ứng viên không khiếu nại vì họ không biết lý do, và tổn thất chỉ lộ ra khi vị trí tuyển mãi không xong. Thiệt hại đầy đủ của một lần mất ứng viên đạt ước tính <b>6.000.000 đồng</b>, gồm: 1.800.000 chi phí tìm nguồn bổ sung (đăng lại tin, thời gian lọc bổ sung); 2.400.000 chi phí năng suất do kéo dài thời gian trống vị trí thêm 2 tuần; 1.800.000 rủi ro phải chấp nhận người có chất lượng thấp hơn.</p>
+
+<p>Tuy nhiên không phải mọi lần loại oan đều dẫn tới mất tuyển dụng: một chiến dịch thường có khoảng 5 ứng viên đủ điều kiện cho 1 vị trí, nên chỉ khoảng <b>20%</b> trường hợp loại oan thực sự là “ứng viên quyết định”. Vì vậy:</p>
+<p class="formula">Y<sub>R</sub> = 6.000.000 × 20% = <b>1.200.000 đồng/hồ sơ</b></p>
+
+<p><b>Y<sub>A</sub> — duyệt oan một hồ sơ kém (false accept).</b> Đây là lỗi <b>quan sát được và sửa được</b>: ứng viên yếu vẫn phải qua phỏng vấn, và bước 6 sẽ loại họ. Thiệt hại chỉ là chi phí của một buổi phỏng vấn không cần thiết — 2 người phỏng vấn × 1 giờ × 150.000 đồng/giờ:</p>
+<p class="formula">Y<sub>A</sub> = <b>300.000 đồng/hồ sơ</b></p>
+
+<div class="note">
+<b>Vì sao Y<sub>R</sub> gấp 4 lần Y<sub>A</sub>.</b> Không phải vì “bỏ sót nhân tài” nghe nghiêm trọng hơn, mà vì <b>khả năng phát hiện</b>: duyệt oan bị bắt ngay ở bước phỏng vấn với chi phí 300.000 đồng, còn loại oan thì biến mất khỏi hệ thống và không bao giờ được đối soát. Nguyên tắc thiết kế: <b>sai sót không quan sát được phải chịu ngưỡng chặt hơn sai sót quan sát được</b>.
+</div>
+
+<h3>c) Quy mô và phân bố giả định</h3>
+<table>
+<tr><th style="width:30%">Tham số</th><th style="width:18%">Ký hiệu</th><th style="width:18%">Giá trị</th><th style="width:34%">Cơ sở giả định</th></tr>
+<tr><td>Chi phí thủ công/hồ sơ</td><td class="c">X</td><td class="c">25.000 đ</td><td>Tính ở mục (a)</td></tr>
+<tr class="alt"><td>Thiệt hại khi loại oan</td><td class="c">Y<sub>R</sub></td><td class="c">1.200.000 đ</td><td>Tính ở mục (b)</td></tr>
+<tr><td>Thiệt hại khi duyệt oan</td><td class="c">Y<sub>A</sub></td><td class="c">300.000 đ</td><td>Tính ở mục (b)</td></tr>
+<tr class="alt"><td>Số hồ sơ một chiến dịch</td><td class="c">N</td><td class="c">1.000</td><td>Một vị trí, thời gian đăng 3 tuần</td></tr>
+<tr><td>Tỷ lệ hồ sơ được mô hình gán nhãn “Đạt”</td><td class="c">&theta;</td><td class="c">30%</td><td>Thực tế các chiến dịch tương tự</td></tr>
+<tr class="alt"><td>Năng lực HR hiện có</td><td class="c">K</td><td class="c">200 hồ sơ/chiến dịch</td><td>1 chuyên viên, 40 hồ sơ/ngày, còn làm việc khác</td></tr>
+<tr><td>Thiệt hại bình quân một quyết định sai</td><td class="c">Y<sub>bq</sub></td><td class="c">930.000 đ</td><td>70% nhãn “Không đạt” × Y<sub>R</sub> + 30% nhãn “Đạt” × Y<sub>A</sub></td></tr>
+</table>
+
+<p class="small">Y<sub>bq</sub> chỉ dùng để lập bảng tổng quát ở mục 3.2.3. Khi ra quyết định vận hành (mục 3.2.5), hai hướng lỗi được tách riêng vì chênh lệch 4 lần là đủ lớn để tạo ra hai ngưỡng khác nhau.</p>
+
+<h2>3.2.3. Bảng chi phí và rủi ro theo dải độ tin cậy</h2>
+
+<p>Với mỗi hồ sơ, so sánh hai phương án: <b>chuyển HR</b> tốn X và gần như triệt tiêu rủi ro; <b>để AI tự quyết</b> tốn 0 đồng xử lý nhưng chịu thiệt hại kỳ vọng (1&minus;p)&nbsp;×&nbsp;Y. Bảng dưới chia 1.000 hồ sơ thành các dải tin cậy, với p&#772; là độ tin cậy bình quân của dải (do đó xác suất sai = 1&nbsp;&minus;&nbsp;p&#772;).</p>
+
+<table>
+<tr>
+  <th style="width:12%">Dải tin cậy</th>
+  <th style="width:7%">Số hồ sơ</th>
+  <th style="width:8%">p&#772;</th>
+  <th style="width:9%">Xác suất sai</th>
+  <th style="width:15%">Nếu chuyển HR<br>(n × X)</th>
+  <th style="width:17%">Nếu để AI tự quyết<br>n × (1&minus;p&#772;) × Y<sub>bq</sub></th>
+  <th style="width:15%">Chênh lệch<br>(AI &minus; HR)</th>
+  <th style="width:17%">Quyết định tối ưu</th>
+</tr>
+<tr>
+  <td class="c">&lt; 50%</td><td class="c">60</td><td class="c">0,45</td><td class="c">55%</td>
+  <td class="r">1.500.000</td><td class="r">30.690.000</td><td class="r hi">+29.190.000</td>
+  <td class="c"><b>HR bắt buộc</b><br><span class="small">(vùng cấm)</span></td>
+</tr>
+<tr class="alt">
+  <td class="c">50% – 85%</td><td class="c">140</td><td class="c">0,72</td><td class="c">28%</td>
+  <td class="r">3.500.000</td><td class="r">36.456.000</td><td class="r hi">+32.956.000</td>
+  <td class="c"><b>HR xem</b></td>
+</tr>
+<tr>
+  <td class="c">85% – 92%</td><td class="c">200</td><td class="c">0,885</td><td class="c">11,5%</td>
+  <td class="r">5.000.000</td><td class="r">21.390.000</td><td class="r hi">+16.390.000</td>
+  <td class="c"><b>HR xem</b></td>
+</tr>
+<tr class="alt">
+  <td class="c">92% – 98%</td><td class="c">300</td><td class="c">0,95</td><td class="c">5%</td>
+  <td class="r">7.500.000</td><td class="r">13.950.000</td><td class="r hi">+6.450.000</td>
+  <td class="c"><b>HR xem</b><br><span class="small">(nếu chỉ có một ngưỡng)</span></td>
+</tr>
+<tr>
+  <td class="c">&ge; 98%</td><td class="c">300</td><td class="c">0,99</td><td class="c">1%</td>
+  <td class="r">7.500.000</td><td class="r good">2.790.000</td><td class="r good">&minus;4.710.000</td>
+  <td class="c"><b>AI tự quyết</b></td>
+</tr>
+<tr class="tot">
+  <td colspan="3">Tổng cộng</td><td class="c">—</td>
+  <td class="r">25.000.000</td><td class="r">—</td><td class="r">—</td>
+  <td class="c">Xem 3.2.4</td>
+</tr>
+</table>
+<p class="cap">Bảng 3.2.3 — Chi phí hai phương án theo từng dải tin cậy (N = 1.000 hồ sơ)</p>
+
+<p>Đọc bảng theo chiều dọc sẽ thấy một quy luật rõ: <b>ở mọi dải dưới 98%, chi phí để AI tự quyết luôn lớn hơn chi phí chuyển HR</b> — cá biệt ở dải 50–85%, AI tự quyết đắt gấp 10 lần. Chỉ đến khi xác suất sai xuống còn khoảng 1% thì hai đường chi phí mới cắt nhau. Điểm cắt đó chính là ngưỡng kinh tế:</p>
+
+<p class="formula">p* = 1 &minus; X / Y<sub>bq</sub> = 1 &minus; 25.000 / 930.000 = <b>0,973 (97,3%)</b></p>
+
+<p>Nói cách khác, với giả định hiện tại, hệ thống chỉ nên tự quyết khi <b>sai ít hơn 2,7%</b>. Đây là kết quả quan trọng và có phần trái với kỳ vọng: một mô hình đạt độ chính xác 90% — vốn được xem là “tốt” — vẫn <b>chưa đủ</b> để tự quyết, vì 10% sai trên 1.000 hồ sơ tương đương 93 triệu đồng thiệt hại kỳ vọng, trong khi thuê người đọc hết chỉ tốn 25 triệu.</p>
+
+<div class="warn">
+<b>Cảnh báo phương pháp.</b> Không được dùng ngưỡng 85% — một con số hay được chọn theo cảm tính — cho bước này. Ở ngưỡng 85%, hệ thống tự quyết 800/1.000 hồ sơ và phát sinh 41 quyết định sai, tương đương <b>38,1 triệu đồng</b> thiệt hại kỳ vọng, tức là <b>đắt hơn 1,5 lần so với việc không tự động hoá gì cả</b>. Con số này sẽ được kiểm chứng ở mục 3.2.4.
+</div>
+
+<h2>3.2.4. So sánh bốn chính sách ngưỡng</h2>
+
+<p>Để thấy rõ tác động, mô phỏng bốn chính sách trên cùng 1.000 hồ sơ. Chi phí thiệt hại của mỗi chính sách được tính bằng số quyết định sai kỳ vọng nhân với đúng loại Y tương ứng (loại oan dùng Y<sub>R</sub>, duyệt oan dùng Y<sub>A</sub>).</p>
+
+<table>
+<tr>
+  <th style="width:20%">Chính sách</th>
+  <th style="width:11%">Số hồ sơ HR xem</th>
+  <th style="width:12%">Chi phí HR</th>
+  <th style="width:11%">Số sai kỳ vọng</th>
+  <th style="width:13%">Thiệt hại kỳ vọng</th>
+  <th style="width:12%">Tổng chi phí</th>
+  <th style="width:10%">Thời gian xử lý</th>
+  <th style="width:11%">Đạt SLA 3 tuần?</th>
+</tr>
+<tr>
+  <td><b>A. Thủ công 100%</b><br><span class="small">(hiện trạng)</span></td>
+  <td class="c">1.000</td><td class="r">25.000.000</td><td class="c">0</td><td class="r">0</td>
+  <td class="r">25.000.000</td><td class="c">166,7 giờ<br>(4,2 tuần)</td><td class="c hi">Không</td>
+</tr>
+<tr class="alt">
+  <td><b>B. Một ngưỡng 85%</b><br><span class="small">(tự quyết khi p &ge; 85%)</span></td>
+  <td class="c">200</td><td class="r">5.000.000</td><td class="c">41,0</td><td class="r">38.130.000</td>
+  <td class="r hi">43.130.000</td><td class="c">33,3 giờ<br>(0,8 tuần)</td><td class="c good">Có</td>
+</tr>
+<tr>
+  <td><b>B'. Một ngưỡng 92%</b><br><span class="small">(tự quyết khi p &ge; 92%)</span></td>
+  <td class="c">400</td><td class="r">10.000.000</td><td class="c">18,0</td><td class="r">16.740.000</td>
+  <td class="r">26.740.000</td><td class="c">66,7 giờ<br>(1,7 tuần)</td><td class="c good">Có</td>
+</tr>
+<tr class="best">
+  <td><b>C. Hai ngưỡng 92% / 98%</b><br><span class="small">(đề xuất — xem 3.2.5)</span></td>
+  <td class="c">610</td><td class="r">15.250.000</td><td class="c">7,5</td><td class="r">4.140.000</td>
+  <td class="r good">19.390.000</td><td class="c">101,7 giờ<br>(2,5 tuần)</td><td class="c good">Có</td>
+</tr>
+</table>
+<p class="cap">Bảng 3.2.4 — So sánh tổng chi phí và thời gian của bốn chính sách</p>
+
+<p><b>Ba nhận xét rút ra từ bảng:</b></p>
+<ol>
+  <li><b>Chính sách B tốt hơn về thời gian nhưng tệ hơn về tiền</b> (43,13 so với 25,00 triệu). Nó đánh đổi 18,13 triệu đồng để tiết kiệm 133 giờ. Nếu tổ chức thực sự cần đúng hạn 3 tuần, đây là cái giá phải trả — nhưng phải <b>nói ra</b> chứ không được trình bày như một khoản tiết kiệm.</li>
+  <li><b>Chính sách B' (ngưỡng 92%) vẫn đắt hơn không làm gì</b> (26,74 so với 25,00 triệu). Đây là điểm nhiều tổ chức mắc bẫy: tự động hoá một nửa khối lượng nghe hấp dẫn, nhưng nếu nửa được tự động hoá lại là nửa có tỷ lệ sai cao nhất thì tổng chi phí tăng.</li>
+  <li><b>Chính sách C vừa rẻ nhất vừa đạt SLA.</b> Nó không tự động hoá nhiều hơn B' (610 so với 400 hồ sơ được HR xem — tức là ít tự động hơn), nhưng lại rẻ hơn 7,35 triệu, vì nó <b>chọn đúng hướng để tự động hoá</b>.</li>
+</ol>
+
+<h2>3.2.5. Lập luận xác định ngưỡng tối ưu</h2>
+
+<h3>a) Nguyên lý: ngưỡng là điểm hai đường chi phí cắt nhau</h3>
+<p>Với một hồ sơ có độ tin cậy p, chi phí kỳ vọng của hai phương án là:</p>
+<p class="formula">C<sub>HR</sub> = X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C<sub>AI</sub> = (1 &minus; p) × Y</p>
+<p>Cho hai biểu thức bằng nhau và giải theo p, ta được ngưỡng hoà vốn:</p>
+<p class="formula">p* = 1 &minus; X / Y</p>
+<p>Quy tắc vận hành suy ra trực tiếp: <b>nếu p &ge; p* thì để AI quyết; nếu p &lt; p* thì chuyển HR.</b></p>
+
+<h3>b) Vì sao phải có hai ngưỡng, không phải một</h3>
+<p>Công thức trên cho thấy p* phụ thuộc vào <b>Y của hướng quyết định</b>, không phụ thuộc vào mô hình. Cùng một mô hình, cùng một hồ sơ, nhưng:</p>
+<ul>
+  <li>Nếu AI định <b>loại</b> hồ sơ: Y = Y<sub>R</sub> = 1.200.000 → p*<sub>loại</sub> = 1 &minus; 25.000/1.200.000 = <b>97,9%</b></li>
+  <li>Nếu AI định <b>nhận</b> hồ sơ: Y = Y<sub>A</sub> = 300.000 → p*<sub>nhận</sub> = 1 &minus; 25.000/300.000 = <b>91,7%</b></li>
+</ul>
+<p>Chênh lệch 6,2 điểm phần trăm này chính là nguồn tiết kiệm của chính sách C. Nếu dùng một ngưỡng chung 98% cho cả hai hướng, ta bỏ lỡ cơ hội tự động duyệt những hồ sơ tốt ở mức 92–98% — nơi rủi ro chỉ là 300.000 đồng. Nếu dùng chung 92%, ta tự động loại những hồ sơ ở mức 92–98% — nơi rủi ro là 1.200.000 đồng và <b>không quan sát được</b>.</p>
+
+<div class="note">
+<b>Nguyên tắc bất đối xứng.</b> Hệ thống được phép “dễ dãi” khi quyết định theo hướng có thể sửa sai ở bước sau (duyệt vào phỏng vấn), và phải “nghiêm khắc” khi quyết định theo hướng không thể sửa (loại hồ sơ). Cụ thể: <b>ngưỡng để tự động loại luôn cao hơn ngưỡng để tự động duyệt</b>. Trong thiết kế này, mức chênh là 6,2 điểm và được ràng buộc cứng, không cho phép cấu hình ngược.
+</div>
+
+<h3>c) Ví dụ tính tay một hồ sơ</h3>
+<p>Hồ sơ có p = 0,97 và nhãn “Không đạt”: C<sub>AI</sub> = (1 &minus; 0,97) × 1.200.000 = <b>36.000 đồng</b> &gt; X = 25.000 → <b>chuyển HR</b>. Nếu p = 0,98: C<sub>AI</sub> = 0,02 × 1.200.000 = <b>24.000 đồng</b> &lt; 25.000 → <b>cho AI quyết</b>. Chỉ cần lệch 1 điểm phần trăm là kết luận đảo chiều — cho thấy ngưỡng phải được tính bằng công thức, không được chọn theo cảm nhận.</p>
+
+<h3>d) Ngưỡng phụ thuộc vào X — và đây là điều đáng lưu ý nhất</h3>
+<table>
+<tr><th style="width:20%">Chi phí thủ công X</th><th style="width:22%">Bối cảnh tương ứng</th><th style="width:19%">Ngưỡng tự động loại</th><th style="width:19%">Ngưỡng tự động duyệt</th><th style="width:20%">Hàm ý</th></tr>
+<tr><td class="c">25.000 đ</td><td>Chuyên viên HR, 10 phút/hồ sơ</td><td class="c">97,9%</td><td class="c">91,7%</td><td>Gần như không nên tự động loại</td></tr>
+<tr class="alt"><td class="c">50.000 đ</td><td>HR + trưởng nhóm cùng đọc</td><td class="c">95,8%</td><td class="c">83,3%</td><td>Bắt đầu tự động duyệt được</td></tr>
+<tr><td class="c">75.000 đ</td><td>Có trưởng bộ phận tham gia sàng lọc</td><td class="c">93,8%</td><td class="c">75,0%</td><td>Tự động duyệt ở dải 85%+</td></tr>
+<tr class="alt"><td class="c">100.000 đ</td><td>Hội đồng 2 người, 20 phút/hồ sơ</td><td class="c">91,7%</td><td class="c">66,7%</td><td>Tự động loại ở dải 92%+</td></tr>
+<tr><td class="c">150.000 đ</td><td>Chuyên gia tuyển dụng cấp cao</td><td class="c">87,5%</td><td class="c">50,0%</td><td>Tự động cả hai hướng từ 88%</td></tr>
+</table>
+<p class="cap">Bảng 3.2.5a — Độ nhạy của ngưỡng theo chi phí thủ công (Y<sub>R</sub> = 1,2 triệu; Y<sub>A</sub> = 0,3 triệu)</p>
+
+<p>Hàm ý quản trị khá bất ngờ: <b>người duyệt càng đắt thì càng nên tự động hoá</b>. Với chuyên viên HR 25.000 đồng/hồ sơ, gần như không có lý do kinh tế nào để tự động loại. Với hội đồng 100.000 đồng/hồ sơ, ngưỡng 92% đã trở nên hợp lý. Vì vậy ngưỡng phải được cấu hình <b>theo từng vị trí tuyển dụng</b>, không dùng một con số chung cho toàn công ty.</p>
+
+<h3>e) Ngưỡng phụ thuộc vào Y — và cách hạ ngưỡng đúng cách</h3>
+<table>
+<tr><th style="width:26%">Y<sub>R</sub> (thiệt hại khi loại oan)</th><th style="width:22%">Bối cảnh</th><th style="width:20%">Ngưỡng tự động loại</th><th style="width:32%">Nhận xét</th></tr>
+<tr><td class="c">6.000.000 đ</td><td>Loại oan = mất chắc chắn ứng viên</td><td class="c">99,6%</td><td>Không thể tự động hoá</td></tr>
+<tr class="alt"><td class="c">2.400.000 đ</td><td>Vị trí khó tuyển, ít ứng viên</td><td class="c">99,0%</td><td>Vẫn rất chặt</td></tr>
+<tr><td class="c">1.200.000 đ</td><td><b>Giả định cơ sở</b></td><td class="c">97,9%</td><td>Như đã tính</td></tr>
+<tr class="alt"><td class="c">900.000 đ</td><td>Vị trí đông ứng viên, dễ thay thế</td><td class="c">97,2%</td><td>Gần như không đổi</td></tr>
+<tr><td class="c">400.000 đ</td><td><b>Có talent pool + quyền phản hồi 7 ngày</b></td><td class="c good">93,8%</td><td>Giảm gần 4 điểm — đáng làm nhất</td></tr>
+</table>
+<p class="cap">Bảng 3.2.5b — Độ nhạy của ngưỡng theo thiệt hại khi loại oan (X = 25.000 đ)</p>
+
+<p>Bảng này dẫn tới kết luận có tính thực tiễn cao nhất của mục 3.2: <b>muốn hạ ngưỡng, cách hiệu quả nhất không phải là làm mô hình chính xác hơn, mà là làm cho quyết định loại trở nên có thể đảo ngược</b>. Nếu hồ sơ bị loại vẫn được đưa vào talent pool, ứng viên nhận được thông báo có thể phản hồi trong 7 ngày, và hệ thống hẹn liên hệ lại khi có vị trí tương tự, thì Y<sub>R</sub> giảm từ 1.200.000 xuống khoảng 400.000 đồng — ngưỡng tự động loại giảm từ 97,9% xuống 93,8%, tức là tự động hoá được thêm khoảng 300 hồ sơ mỗi chiến dịch. Chi phí để làm việc này gần như bằng 0 (chỉ là một luồng nghiệp vụ trong hệ thống ATS), trong khi để cải thiện độ chính xác mô hình từ 97% lên 99% thường cần 6–12 tháng dữ liệu.</p>
+
+<div class="note">
+<b>Ba đòn bẩy hạ ngưỡng, xếp theo hiệu quả/chi phí:</b>
+<ol style="margin-bottom:0">
+  <li><b>Làm lỗi trở nên đảo ngược được</b> (talent pool, quyền phản hồi, hẹn liên hệ lại) — giảm Y<sub>R</sub>, chi phí thấp, tác động lớn nhất.</li>
+  <li><b>Thêm lớp kiểm chứng tự động</b> (đối chiếu chéo dữ liệu trích xuất với ảnh gốc, knock-out bằng luật) — giảm xác suất sai thực tế trong cùng một dải tin cậy, chi phí trung bình.</li>
+  <li><b>Tăng X một cách có chủ đích</b> (đưa người có chuyên môn cao hơn vào duyệt) — giảm p*, nhưng chỉ nên làm khi chất lượng quyết định quan trọng hơn tốc độ.</li>
+</ol>
+</div>
+
+<h3>f) Ngưỡng cuối cùng và vùng cấm</h3>
+<table>
+<tr>
+  <th style="width:11%">Nhãn AI</th><th style="width:11%">Độ tin cậy</th><th style="width:24%">Hành động của hệ thống</th>
+  <th style="width:27%">Bắt buộc kèm theo</th><th style="width:27%">Lý do</th>
+</tr>
+<tr class="best">
+  <td class="c">Đạt</td><td class="c">&ge; 92%</td>
+  <td>Tự động đưa vào danh sách chờ phỏng vấn; HR duyệt danh sách theo lô một lần/ngày.</td>
+  <td>Ghi log p, phiên bản mô hình, căn cứ; HR lấy mẫu kiểm tra 5%.</td>
+  <td>Lỗi chỉ tốn 300.000 đồng và bị bắt ở bước 6.</td>
+</tr>
+<tr>
+  <td class="c">Không đạt</td><td class="c">&ge; 98%</td>
+  <td>Tự động loại; đưa vào talent pool; gửi thư thông báo có quyền phản hồi trong 7 ngày.</td>
+  <td>Không được dùng thuộc tính nhạy cảm; lưu lý do có thể diễn giải được; mở kênh khiếu nại.</td>
+  <td>Đã ở mức sai &lt; 2%, và lỗi được làm cho đảo ngược được.</td>
+</tr>
+<tr class="alt">
+  <td class="c">Cả hai</td><td class="c">50% – ngưỡng</td>
+  <td>Chuyển HR xem thủ công, có AI xếp thứ tự ưu tiên đọc và tóm tắt CV.</td>
+  <td>Ẩn điểm số AI khỏi người duyệt trong 10% mẫu để đo thiên lệch tuân thủ.</td>
+  <td>Đây là vùng chiếm đa số hồ sơ; AI hỗ trợ nhưng không quyết.</td>
+</tr>
+<tr>
+  <td class="c">Cả hai</td><td class="c">&lt; 50%</td>
+  <td><b>Vùng cấm</b> — bắt buộc HR xem, gắn nhãn “hồ sơ khó”, đưa vào tập huấn luyện lại.</td>
+  <td>Không được tự động hoá trong mọi trường hợp, kể cả khi nhãn là “Đạt”.</td>
+  <td>Mô hình đang đoán; và hồ sơ khó thường là hồ sơ không chuẩn mực — nhóm dễ bị tổn thương nhất bởi thiên lệch.</td>
+</tr>
+<tr class="alt">
+  <td class="c">Bất kỳ</td><td class="c">Bất kỳ</td>
+  <td><b>Chặn cứng</b>: hồ sơ có khoảng trống sự nghiệp &gt; 12 tháng, ứng viên nước ngoài, hồ sơ không đọc được, hoặc vị trí thuộc nhóm nhạy cảm (quản lý, tài chính, an ninh).</td>
+  <td>Luôn chuyển HR, không phụ thuộc p.</td>
+  <td>Đây là nơi mô hình sai nhiều nhất và hậu quả thiên lệch lớn nhất; chi phí xem thủ công là quá rẻ để đánh đổi.</td>
+</tr>
+</table>
+<p class="cap">Bảng 3.2.5c — Quy tắc vận hành ngưỡng cho bước sàng lọc</p>
+
+<h2>3.2.6. Kiểm soát và giám sát ngưỡng</h2>
+<p>Ngưỡng chỉ có giá trị nếu p thực sự hiệu chỉnh và không trôi theo thời gian. Bốn cơ chế bắt buộc:</p>
+<table>
+<tr><th style="width:22%">Cơ chế</th><th style="width:30%">Cách làm</th><th style="width:24%">Tần suất</th><th style="width:24%">Ngưỡng hành động</th></tr>
+<tr>
+  <td>Kiểm định hiệu chuẩn</td>
+  <td>Vẽ biểu đồ reliability trên tập giữ lại; tính ECE theo từng dải tin cậy và từng nhóm vị trí.</td>
+  <td>Hằng tháng</td>
+  <td>ECE &gt; 0,05 → tạm dừng tự động hoá, quay về HR 100%.</td>
+</tr>
+<tr class="alt">
+  <td>Kiểm tra độ chính xác theo dải</td>
+  <td>Đối chiếu nhãn AI với kết luận cuối cùng của HR trên mẫu ngẫu nhiên 10%.</td>
+  <td>Hằng tuần</td>
+  <td>Độ chính xác dải &ge; 98% thấp hơn 97% trong 2 tuần → nâng ngưỡng.</td>
+</tr>
+<tr>
+  <td>Kiểm định thiên lệch</td>
+  <td>So sánh tỷ lệ tự động loại giữa các nhóm (giới, độ tuổi, vùng miền, loại cơ sở đào tạo).</td>
+  <td>Hằng quý</td>
+  <td>Chênh lệch &gt; 5 điểm phần trăm → điều tra, có thể đình chỉ tự động loại.</td>
+</tr>
+<tr class="alt">
+  <td>Theo dõi tỷ lệ can thiệp</td>
+  <td>Đếm số lần HR đảo quyết định của AI trên tổng số quyết định tự động.</td>
+  <td>Hằng tuần</td>
+  <td>&gt; 10% → mô hình hoặc ngưỡng đang sai; xem lại cả hai.</td>
+</tr>
+</table>
+
+<p>Ngoài ra, ba yêu cầu tuân thủ cần ghi rõ trong thiết kế: (i) mọi quyết định tự động phải <b>giải thích được</b> bằng các tiêu chí trong JD đã duyệt, không dùng thuộc tính suy đoán; (ii) ứng viên bị loại tự động có <b>quyền phản hồi và được xem lại bởi người</b>; (iii) dữ liệu dùng để chấm điểm chỉ gồm dữ liệu cần thiết cho vị trí, tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.</p>
+
+<h2>3.2.7. Kết luận mục 3.2</h2>
+<ol>
+  <li><b>Ngưỡng không phải là một con số kỹ thuật mà là một quyết định kinh tế.</b> Với X = 25.000 đồng và Y<sub>R</sub> = 1.200.000 đồng, ngưỡng hoà vốn là 97,9% cho hướng loại và 91,7% cho hướng duyệt. Mọi con số khác đều phải suy ra từ hai tham số này, không được chọn theo thói quen.</li>
+  <li><b>Phải dùng hai ngưỡng, không dùng một.</b> Chính sách hai ngưỡng 92%/98% cho tổng chi phí 19,39 triệu đồng và đạt SLA 3 tuần; chính sách một ngưỡng 92% tốn 26,74 triệu; chính sách một ngưỡng 85% tốn 43,13 triệu — đắt hơn cả việc không tự động hoá.</li>
+  <li><b>Giá trị tài chính của việc tự động hoá quyết định là nhỏ</b> (tiết kiệm 5,6 triệu, tức 22%, trên 1.000 hồ sơ). Giá trị thật nằm ở <b>thời gian</b>: rút từ 4,2 tuần xuống 2,5 tuần, đưa chiến dịch về đúng hạn. Cần trình bày đúng bản chất này, tránh quảng bá “tiết kiệm 80% chi phí sàng lọc”.</li>
+  <li><b>Cách hạ ngưỡng hiệu quả nhất là làm cho lỗi trở nên đảo ngược được</b>, không phải làm mô hình chính xác hơn. Talent pool và quyền phản hồi 7 ngày đưa ngưỡng tự động loại từ 97,9% xuống 93,8% với chi phí gần bằng 0.</li>
+  <li><b>Không bao giờ tự động hoá ở vùng p &lt; 50%</b>, kể cả khi nhãn là “Đạt”. Đây là vùng mô hình đang đoán, đồng thời là nơi tập trung các hồ sơ không chuẩn mực — nhóm chịu rủi ro thiên lệch cao nhất. Điều này khớp với kết luận ở mục 3.1: hoạt động 4.4 là “AI hỗ trợ”, hoạt động 4.5 (chốt shortlist) là “thủ công”.</li>
+</ol>
+
+<p class="small" style="margin-top:14pt">Ghi chú: các tham số X, Y là giả định phục vụ phân tích, cần được hiệu chỉnh bằng dữ liệu thực tế của doanh nghiệp trước khi áp dụng. Khi thay đổi X hoặc Y, ngưỡng phải được tính lại theo công thức p* = 1 &minus; X/Y, không được giữ nguyên.</p>
+
+</body>
+</html>

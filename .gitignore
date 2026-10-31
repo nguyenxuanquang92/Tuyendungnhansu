@@ -1,0 +1,57 @@
+# Bỏ qua thư mục phụ thuộc
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.pyc
+bin/
+obj/
+packages/
+dist/
+build/
+out/
+target/
+
+# Bí mật và cấu hình cục bộ — KHÔNG BAO GIỜ commit
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+*.pfx
+*.p12
+*.key
+secrets/
+*.local.json
+
+# Cơ sở dữ liệu cục bộ
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+# Log và tệp tạm
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+~$*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Hệ điều hành
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Tệp nén và bản nháp
+*.zip
+*.rar
+*.7z
+_BAN_NHAP/
