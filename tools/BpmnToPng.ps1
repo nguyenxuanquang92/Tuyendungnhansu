@@ -97,10 +97,10 @@ foreach ($e in $doc.SelectNodes('//d:BPMNEdge', $ns)) {
 
 $pad = 40
 $minX -= $pad; $minY -= $pad; $maxX += $pad; $maxY += $pad
-$W = [int](($maxX - $minX) * $Scale)
-$H = [int](($maxY - $minY) * $Scale)
+$imgW = [int](($maxX - $minX) * $Scale)
+$imgH = [int](($maxY - $minY) * $Scale)
 
-$bmp = New-Object System.Drawing.Bitmap($W, $H)
+$bmp = New-Object System.Drawing.Bitmap($imgW, $imgH)
 $g = [System.Drawing.Graphics]::FromImage($bmp)
 $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
 $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
@@ -208,10 +208,10 @@ function Draw-Marker($g, $kind, $x, $y, $pen) {
 foreach ($s in $shapes) {
     $x = $s.x; $y = $s.y; $w = $s.w; $h = $s.h; $cx = $x + $w / 2; $cy = $y + $h / 2
     switch ($s.type) {
-        'userTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'userTask' ($x + 6) ($y + 6); Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
-        'manualTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'manualTask' ($x + 6) ($y + 6); Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
-        'serviceTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'serviceTask' ($x + 6) ($y + 6); Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
-        'sendTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'sendTask' ($x + 6) ($y + 6); Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
+        'userTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'userTask' ($x + 6) ($y + 6) $penNode; Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
+        'manualTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'manualTask' ($x + 6) ($y + 6) $penNode; Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
+        'serviceTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'serviceTask' ($x + 6) ($y + 6) $penNode; Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
+        'sendTask' { $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h); $g.DrawRectangle($penNode, [single]$x, [single]$y, [single]$w, [single]$h); Draw-Marker $g 'sendTask' ($x + 6) ($y + 6) $penNode; Draw-TextBlock $g $s.name $fTask $bTxt $cx ($cy + 3) ($w - 16) 'center' }
         'subProcess' {
             $g.FillRectangle($bTask, [single]$x, [single]$y, [single]$w, [single]$h)
             $pen2 = New-Pen $black 1.8 $false
@@ -308,4 +308,4 @@ foreach ($s in $shapes) {
 
 $bmp.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
 $g.Dispose(); $bmp.Dispose()
-"PNG $Out  ${W}x${H}"
+"PNG $Out  ${imgW}x${imgH}"

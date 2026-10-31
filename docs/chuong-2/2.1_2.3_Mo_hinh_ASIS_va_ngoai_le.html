@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Chuong 2 - Mo hinh AS-IS va xu ly ngoai le</title>
+<style>
+body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.35; color: #111; }
+h1 { font-size: 15pt; text-align: center; margin: 0 0 4pt 0; color: #1f3864; }
+.sub { text-align: center; font-size: 10.5pt; font-style: italic; color: #444; margin: 0 0 16pt 0; }
+h2 { font-size: 13pt; margin: 18pt 0 6pt 0; border-bottom: 1.5pt solid #1f3864; padding-bottom: 3pt; color: #1f3864; }
+h3 { font-size: 11.5pt; margin: 12pt 0 4pt 0; color: #1f3864; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 20pt; }
+li { margin-bottom: 3pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 4pt 0; font-size: 9pt; }
+th { background: #1f3864; color: #fff; border: 0.5pt solid #7f7f7f; padding: 4pt 3pt; text-align: center; font-weight: bold; }
+td { border: 0.5pt solid #7f7f7f; padding: 3pt; vertical-align: top; }
+tr.alt td { background: #f2f5fa; }
+tr.tot td { background: #e6e6e6; font-weight: bold; }
+.c { text-align: center; }
+.note { background: #f7f7f7; border-left: 3pt solid #1f3864; padding: 6pt 8pt; margin: 8pt 0; font-size: 10.5pt; }
+.warn { background: #fdf1e8; border-left: 3pt solid #b36b00; padding: 6pt 8pt; margin: 8pt 0; font-size: 10.5pt; }
+.cap { font-size: 9pt; font-style: italic; color: #555; margin: 2pt 0 12pt 0; text-align: center; }
+.small { font-size: 9pt; color: #555; }
+code { font-family: Consolas, monospace; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<h1>Chương 2 — Mô hình hóa quy trình<br>Mục 2.1 và 2.3</h1>
+<p class="sub">Quy trình tuyển dụng nhân sự — Nhóm 8, MIS3047</p>
+
+<h2>2.1. Mô hình AS-IS</h2>
+
+<h3>a) Tệp đính kèm</h3>
+<table>
+<tr><th style="width:34%">Tệp</th><th style="width:22%">Định dạng</th><th style="width:44%">Nội dung</th></tr>
+<tr><td><code>bpmn/as-is/as-is.bpmn</code></td><td class="c">BPMN 2.0 (XML)</td><td>Mô hình mở được bằng bpmn.io, Camunda Modeler, Bizagi</td></tr>
+<tr class="alt"><td><code>bpmn/as-is/as-is.png</code></td><td class="c">Ảnh 7264 × 1648 px</td><td>Ảnh chụp toàn mô hình, dùng để chèn vào báo cáo</td></tr>
+</table>
+
+<h3>b) Thành phần mô hình theo yêu cầu đề bài</h3>
+<p>Đề bài yêu cầu tối thiểu 2 lane, 1 cổng XOR, 1 cổng AND, 1 đối tượng dữ liệu và 1 sự kiện hẹn giờ. Mô hình được xây dựng lại từ đầu và vượt mức yêu cầu ở cả năm hạng mục:</p>
+<table>
+<tr><th style="width:26%">Hạng mục</th><th style="width:14%">Yêu cầu</th><th style="width:12%">Thực tế</th><th style="width:48%">Vị trí trong mô hình</th></tr>
+<tr><td>Lane (làn)</td><td class="c">≥ 2</td><td class="c"><b>3</b></td><td>Phòng ban chuyên môn, Phòng Nhân sự, Giám đốc (trong pool “Công ty”); pool “Ứng viên” là bên ngoài</td></tr>
+<tr class="alt"><td>Cổng XOR</td><td class="c">≥ 1</td><td class="c"><b>4</b></td><td><code>G_DayDu</code>, <code>G_DuyetJD</code>, <code>G_Dat</code>, <code>G_KetQua</code></td></tr>
+<tr><td>Cổng AND</td><td class="c">≥ 1</td><td class="c"><b>2</b></td><td>Cặp tách–hợp <code>G_SS_DangTin</code> / <code>G_SJ_DangTin</code>: đăng tin song song hai kênh</td></tr>
+<tr class="alt"><td>Đối tượng dữ liệu</td><td class="c">≥ 1</td><td class="c"><b>3 + 3</b></td><td>3 data object: Kế hoạch tuyển dụng, Bản JD, Thông báo tuyển dụng. 3 data store: Kho CV, Quyết định tuyển dụng, Hồ sơ nhân sự</td></tr>
+<tr><td>Sự kiện hẹn giờ</td><td class="c">≥ 1</td><td class="c"><b>2</b></td><td><code>E_HetHan</code> (timer trung gian, 21 ngày) và <code>B_NhacDuyet</code> (timer biên không ngắt, 3 ngày)</td></tr>
+<tr class="alt"><td>Cổng sự kiện</td><td class="c">—</td><td class="c">1</td><td><code>G_SuKien</code>: chờ đồng thời “hồ sơ nộp” hoặc “hết hạn đăng tin”</td></tr>
+<tr><td>Luồng thông điệp</td><td class="c">—</td><td class="c">6</td><td>Trao đổi giữa Công ty và Ứng viên qua pool thứ hai</td></tr>
+<tr class="alt"><td>Hoạt động</td><td class="c">—</td><td class="c"><b>25</b></td><td>11 user task, 7 manual task, 6 send task, 1 service task</td></tr>
+</table>
+<p class="cap">Bảng 2.1 — Đối chiếu thành phần mô hình AS-IS với yêu cầu đề bài</p>
+
+<h3>c) Diễn giải luồng chính</h3>
+<p>Phòng ban phát sinh nhu cầu và lập yêu cầu tuyển dụng. Phòng Nhân sự tiếp nhận, kiểm tra tính đầy đủ: nếu thiếu thông tin thì trả về phòng ban bổ sung (vòng lặp <code>G_DayDu</code>), nếu đủ thì soạn bản mô tả công việc. Bản JD được chuyển lên Giám đốc phê duyệt; không duyệt thì Nhân sự chỉnh sửa và trình lại. Sau khi duyệt, hệ thống <b>tách nhánh song song</b> để đăng tin đồng thời trên kênh tuyển dụng ngoài và cổng thông tin nội bộ, rồi <b>hợp nhánh</b> trước khi chuyển sang giai đoạn chờ hồ sơ.</p>
+<p>Ứng viên nộp hồ sơ được ghi nhận qua luồng thông điệp; hồ sơ được lưu vào Kho CV rồi sàng lọc thủ công. Hồ sơ không đạt kết thúc tại chỗ; hồ sơ đạt chuyển sang lập lịch và thông báo phỏng vấn. Phỏng vấn do phòng ban chuyên môn thực hiện và đánh giá; kết quả đạt được chuyển lên Giám đốc phê duyệt nhân sự trước khi gửi thông báo cho ứng viên. Cuối cùng Nhân sự lập quyết định tuyển dụng và tiếp nhận nhân sự.</p>
+
+<div class="note">
+<b>Điểm khác biệt so với bản mô hình ban đầu.</b> Bản AS-IS nộp kèm trước đây chỉ có 3 lane và 2 cổng XOR, không có cổng AND, không có sự kiện hẹn giờ và không có cơ chế ngoại lệ. Bản hiện tại bổ sung: cặp cổng AND tách–hợp cho việc đăng tin đa kênh, cổng sự kiện kết hợp timer 21 ngày, hai sự kiện biên và một event sub-process. Toàn bộ mã định danh phần tử được đặt tên có nghĩa (tiền tố <code>T_</code>, <code>G_</code>, <code>E_</code>, <code>D_</code>, <code>B_</code>) để mục 3.3 ánh xạ sang tính năng phần mềm.
+</div>
+
+<h2>2.3. Xử lý ngoại lệ</h2>
+
+<p>Ba ngoại lệ dưới đây được mô hình hóa trực tiếp trong tệp <code>as-is.bpmn</code>, không mô tả bằng văn bản rời. Mỗi ngoại lệ dùng đúng một cấu trúc BPMN chuyên biệt.</p>
+
+<h3>a) Sự kiện hẹn giờ biên không ngắt — nhắc quá hạn phê duyệt</h3>
+<table>
+<tr><th style="width:22%">Thuộc tính</th><th style="width:78%">Giá trị</th></tr>
+<tr><td>Mã phần tử</td><td><code>B_NhacDuyet</code> — <code>boundaryEvent</code> gắn vào <code>T_DuyetJD</code></td></tr>
+<tr class="alt"><td>Loại</td><td><code>cancelActivity="false"</code> — <b>không ngắt</b></td></tr>
+<tr><td>Điều kiện</td><td><code>timeDuration = P3D</code> — quá 3 ngày kể từ khi JD vào hàng chờ duyệt</td></tr>
+<tr class="alt"><td>Hành vi</td><td>Sinh thêm một token song song: gửi nhắc nhở cho Giám đốc (<code>T_NhacGD</code>) rồi kết thúc nhánh (<code>E_NhacXong</code>). Luồng chính <b>vẫn tiếp tục chờ</b> tại <code>T_DuyetJD</code>.</td></tr>
+<tr><td>Vì sao không ngắt</td><td>Nếu dùng timer ngắt, việc duyệt sẽ bị huỷ sau 3 ngày — trái nghiệp vụ: JD vẫn phải được duyệt, chỉ là bị nhắc. Ngắt ở đây sẽ tạo ra nhánh không có đường quay lại.</td></tr>
+<tr class="alt"><td>Ý nghĩa quản trị</td><td>Đây là nút cổ chai “chờ duyệt” được đo ở mục 2.2. Cơ chế nhắc tự động tấn công trực tiếp vào thời gian chờ, không cần đổi thẩm quyền.</td></tr>
+</table>
+
+<h3>b) Sự kiện lỗi biên — lỗi lưu trữ hồ sơ</h3>
+<table>
+<tr><th style="width:22%">Thuộc tính</th><th style="width:78%">Giá trị</th></tr>
+<tr><td>Mã phần tử</td><td><code>B_LoiLuuCV</code> — <code>boundaryEvent</code> gắn vào <code>T_LuuCV</code></td></tr>
+<tr class="alt"><td>Loại</td><td><code>errorEventDefinition</code>, tham chiếu <code>Err_LuuCV</code> (errorCode <code>STORAGE_FAIL</code>)</td></tr>
+<tr><td>Hành vi</td><td>Ngắt tác vụ đang lỗi, chuyển sang <code>T_LuuTam</code> (lưu tạm và báo lỗi kỹ thuật), kết thúc nhánh tại <code>E_ChoXuLyLai</code>.</td></tr>
+<tr class="alt"><td>Vì sao cần</td><td><code>T_LuuCV</code> là service task duy nhất trong mô hình — tức điểm duy nhất phụ thuộc hệ thống bên ngoài. Nếu lỗi xảy ra mà không có nhánh biên, hồ sơ của ứng viên sẽ <b>biến mất không dấu vết</b>; đây là dạng sai sót không quan sát được, cùng loại với rủi ro đã phân tích ở mục 3.2.</td></tr>
+<tr><td>Ý nghĩa quản trị</td><td>Tách “xử lý được” khỏi “mất hồ sơ”: mọi lỗi lưu trữ đều để lại bản ghi chờ xử lý lại thay vì thất bại im lặng.</td></tr>
+</table>
+
+<h3>c) Event sub-process — huỷ yêu cầu tuyển dụng</h3>
+<table>
+<tr><th style="width:22%">Thuộc tính</th><th style="width:78%">Giá trị</th></tr>
+<tr><td>Mã phần tử</td><td><code>ESP_HuyYC</code> — <code>subProcess triggeredByEvent="true"</code></td></tr>
+<tr class="alt"><td>Sự kiện kích hoạt</td><td><code>ESP_Start</code> — start event thông điệp <code>Msg_HuyYC</code>, <code>isInterrupting="true"</code></td></tr>
+<tr><td>Hành vi</td><td>Khi người đề nghị rút yêu cầu ở <b>bất kỳ thời điểm nào</b>, toàn bộ tiến trình đang chạy bị huỷ; hệ thống gửi thông báo cho các bên liên quan (<code>ESP_ThongBao</code>) rồi kết thúc tại <code>ESP_End</code>.</td></tr>
+<tr class="alt"><td>Vì sao dùng event sub-process</td><td>Việc huỷ không gắn với một tác vụ cụ thể nào — nó có thể xảy ra lúc đang soạn JD, đang chờ duyệt hay đang phỏng vấn. Chỉ event sub-process mới bắt được sự kiện ở phạm vi toàn tiến trình. Gắn boundary event vào một tác vụ sẽ bỏ sót các thời điểm còn lại.</td></tr>
+<tr><td>Ý nghĩa quản trị</td><td>Tránh trường hợp yêu cầu đã bị huỷ nhưng hệ thống vẫn tiếp tục đăng tin, vẫn mời phỏng vấn — lãng phí và gây trải nghiệm xấu cho ứng viên.</td></tr>
+</table>
+
+<h3>d) Tổng hợp đối chiếu</h3>
+<table>
+<tr><th style="width:32%">Yêu cầu mục 2.3</th><th style="width:22%">Phần tử</th><th style="width:20%">Loại BPMN</th><th style="width:26%">Kịch bản nghiệp vụ</th></tr>
+<tr><td>Sự kiện hẹn giờ biên không ngắt</td><td class="c"><code>B_NhacDuyet</code></td><td class="c">boundaryEvent + timer, cancelActivity=false</td><td>Nhắc Giám đốc khi quá hạn duyệt 3 ngày</td></tr>
+<tr class="alt"><td>Sự kiện lỗi biên</td><td class="c"><code>B_LoiLuuCV</code></td><td class="c">boundaryEvent + error</td><td>Lỗi lưu trữ hồ sơ vào Kho CV</td></tr>
+<tr><td>Event sub-process</td><td class="c"><code>ESP_HuyYC</code></td><td class="c">subProcess triggeredByEvent</td><td>Người đề nghị huỷ yêu cầu tuyển dụng</td></tr>
+</table>
+<p class="cap">Bảng 2.3 — Ba ngoại lệ bắt buộc và cách mô hình hóa</p>
+
+<div class="warn">
+<b>Lưu ý khi chấm mô hình.</b> Hai ngoại lệ (a) và (b) đều là <b>sự kiện biên</b> nhưng khác bản chất: (a) không ngắt vì công việc chính vẫn phải hoàn thành, (b) ngắt vì công việc chính đã thất bại. Đây là cặp đối chiếu nên được nêu rõ khi thuyết trình, vì nó chứng minh nhóm hiểu <code>cancelActivity</code> chứ không chỉ biết vẽ hình.
+</div>
+
+<h2>Phụ lục — Cách mở và tái tạo mô hình</h2>
+<table>
+<tr><th style="width:30%">Việc cần làm</th><th style="width:70%">Cách thực hiện</th></tr>
+<tr><td>Xem mô hình</td><td>Mở https://demo.bpmn.io → <i>Open File</i> → chọn <code>as-is.bpmn</code></td></tr>
+<tr class="alt"><td>Sửa mô hình</td><td>Dùng Camunda Modeler hoặc bpmn.io, lưu lại dưới dạng BPMN 2.0</td></tr>
+<tr><td>Tái tạo từ mã nguồn</td><td><code>powershell -File tools/Build-AsIs.ps1</code> sinh lại <code>as-is.bpmn</code> từ mô hình khai báo trong <code>tools/models/AsIs.ps1</code></td></tr>
+<tr class="alt"><td>Xuất ảnh</td><td><code>powershell -File tools/BpmnToPng.ps1 -In bpmn/as-is/as-is.bpmn -Out bpmn/as-is/as-is.png</code></td></tr>
+</table>
+<p class="small">Toàn bộ toạ độ trong tệp .bpmn được sinh tự động từ một bảng khai báo duy nhất, nên sơ đồ và ảnh PNG luôn khớp nhau. Khi cần chỉnh bố cục, sửa toạ độ trong <code>tools/models/AsIs.ps1</code> rồi chạy lại hai lệnh trên.</p>
+
+</body>
+</html>

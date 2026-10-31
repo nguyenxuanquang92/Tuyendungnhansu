@@ -486,16 +486,16 @@
         <dc:Bounds x="2270" y="457" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ESP_HuyYC_di" bpmnElement="ESP_HuyYC">
-        <dc:Bounds x="2800" y="545" width="520" height="120" />
+        <dc:Bounds x="2800" y="530" width="520" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ESP_Start_di" bpmnElement="ESP_Start">
-        <dc:Bounds x="2850" y="587" width="36" height="36" />
+        <dc:Bounds x="2850" y="596" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ESP_ThongBao_di" bpmnElement="ESP_ThongBao">
-        <dc:Bounds x="2950" y="565" width="130" height="80" />
+        <dc:Bounds x="2950" y="574" width="130" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ESP_End_di" bpmnElement="ESP_End">
-        <dc:Bounds x="3150" y="587" width="36" height="36" />
+        <dc:Bounds x="3150" y="596" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UV_Start_di" bpmnElement="UV_Start">
         <dc:Bounds x="1650" y="937" width="36" height="36" />
@@ -712,12 +712,12 @@
         <di:waypoint x="2700" y="580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="EF01_di" bpmnElement="EF01">
-        <di:waypoint x="2886" y="605" />
-        <di:waypoint x="2950" y="605" />
+        <di:waypoint x="2886" y="614" />
+        <di:waypoint x="2950" y="614" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="EF02_di" bpmnElement="EF02">
-        <di:waypoint x="3080" y="605" />
-        <di:waypoint x="3150" y="605" />
+        <di:waypoint x="3080" y="614" />
+        <di:waypoint x="3150" y="614" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="UF01_di" bpmnElement="UF01">
         <di:waypoint x="1686" y="955" />

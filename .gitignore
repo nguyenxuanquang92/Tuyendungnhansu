@@ -31,6 +31,10 @@ secrets/
 *.mdf
 *.ldf
 
+# Dữ liệu chạy của ứng dụng (sinh tự động từ mã nguồn)
+app/data/
+app/data-test/
+
 # Log và tệp tạm
 *.log
 logs/

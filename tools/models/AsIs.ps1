@@ -66,10 +66,10 @@ function Get-ModelAsIs {
     [void]$nodes.Add((N 'B_LoiLuuCV'  'boundaryError'   'Lỗi lưu trữ hồ sơ'     2270 457 36 36 $PC $NS @{ attach = 'T_LuuCV'; error = 'Err_LuuCV' }))
 
     # ---------- Event sub-process: huy yeu cau ----------
-    [void]$nodes.Add((N 'ESP_HuyYC'   'subProcess' 'Huỷ yêu cầu tuyển dụng'     2800 545 520 120 $PC $NS $null))
-    [void]$nodes.Add((N 'ESP_Start'   'startMessage' 'Yêu cầu bị huỷ'           2850 587 36 36 $PC $null @{ parent = 'ESP_HuyYC'; message = 'Msg_HuyYC' }))
-    [void]$nodes.Add((N 'ESP_ThongBao' 'sendTask'  'Thông báo huỷ cho các bên'   2950 565 130 80 $PC $null @{ parent = 'ESP_HuyYC' }))
-    [void]$nodes.Add((N 'ESP_End'     'endEvent'  'Đã huỷ yêu cầu'             3150 587 36 36 $PC $null @{ parent = 'ESP_HuyYC' }))
+    [void]$nodes.Add((N 'ESP_HuyYC'   'subProcess' 'Huỷ yêu cầu tuyển dụng'     2800 530 520 150 $PC $NS $null))
+    [void]$nodes.Add((N 'ESP_Start'   'startMessage' 'Yêu cầu bị huỷ'           2850 596 36 36 $PC $null @{ parent = 'ESP_HuyYC'; message = 'Msg_HuyYC' }))
+    [void]$nodes.Add((N 'ESP_ThongBao' 'sendTask'  'Thông báo huỷ cho các bên'   2950 574 130 80 $PC $null @{ parent = 'ESP_HuyYC' }))
+    [void]$nodes.Add((N 'ESP_End'     'endEvent'  'Đã huỷ yêu cầu'             3150 596 36 36 $PC $null @{ parent = 'ESP_HuyYC' }))
 
     # ---------- Ung vien ----------
     [void]$nodes.Add((N 'UV_Start'    'startEvent' 'Biết tin tuyển dụng'        1650 937 36 36 $PU $null $null))

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hệ thống Tuyển dụng Nhân sự — Nhóm 8</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section id="login">
+  <form class="login-card" id="login-form" autocomplete="off">
+    <h1>Hệ thống Tuyển dụng Nhân sự</h1>
+    <p class="sub">MIS3047 — Nhóm 8 · Quy trình TO-BE có kiểm soát tự động hóa</p>
+    <p class="error" id="login-error"></p>
+    <div class="field">
+      <label for="username">Tài khoản</label>
+      <input id="username" name="username" value="nhansu" required>
+    </div>
+    <div class="field">
+      <label for="password">Mật khẩu</label>
+      <input id="password" name="password" type="password" value="Demo@123" required>
+    </div>
+    <button class="btn block" type="submit">Đăng nhập</button>
+    <div class="hint">
+      <b>Tài khoản demo</b> (mật khẩu <code>Demo@123</code>):<br>
+      <code>truongphong</code> — Trưởng phòng ban<br>
+      <code>nhansu</code> — Chuyên viên Nhân sự<br>
+      <code>giamdoc</code> — Giám đốc
+    </div>
+  </form>
+</section>
+
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand">Tuyển dụng Nhân sự<span>NHÓM 8 · MIS3047</span></div>
+    <nav class="nav" id="nav">
+      <button data-view="dashboard">Tổng quan</button>
+      <button data-view="requests">Yêu cầu tuyển dụng</button>
+      <button data-view="screening">Sàng lọc hồ sơ</button>
+      <button data-view="about">Kiến trúc &amp; quy tắc</button>
+    </nav>
+    <div class="who">
+      <b id="who-name">—</b>
+      <span class="role" id="who-role">—</span>
+      <button id="logout">Đăng xuất</button>
+    </div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
